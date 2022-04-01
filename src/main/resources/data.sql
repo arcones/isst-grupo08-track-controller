@@ -1,5 +1,5 @@
-INSERT INTO carrier (Name, Password)
-VALUES ('Seur', 's3ur');
+INSERT INTO CARRIER (NAME, PASSWORD)
+VALUES ('SEUR', 'S3UR');
 
-INSERT INTO parcel (Order_Number, Carrier_Id, State)
-VALUES (1, 1, 'En transito')
+INSERT INTO PARCEL (ORDER_NUMBER, CARRIER_ID, STATE)
+VALUES (1, 1, 'EN TRANSITO')

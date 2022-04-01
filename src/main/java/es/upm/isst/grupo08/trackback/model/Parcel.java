@@ -3,20 +3,20 @@ package es.upm.isst.grupo08.trackback.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name="Parcel")
+@Table(name="PARCEL")
 public class Parcel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name="Order_Number")
+    @Column(name="ORDER_NUMBER")
     private long orderNumber;
 
-    @Column(name="Carrier_Id")
+    @Column(name="CARRIER_ID")
     private long carrierId;
 
-    @Column(name="state")
+    @Column(name="STATE")
     private String state;
 
     public Parcel() {

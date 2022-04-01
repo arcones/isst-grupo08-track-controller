@@ -1,6 +1,5 @@
 package es.upm.isst.grupo08.trackback.controller;
 
-import es.upm.isst.grupo08.trackback.model.Carrier;
 import es.upm.isst.grupo08.trackback.model.Parcel;
 import es.upm.isst.grupo08.trackback.repository.ParcelRepository;
 import org.springframework.http.HttpStatus;
@@ -10,7 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import es.upm.isst.grupo08.trackback.repository.CarrierRepository;
 
 import java.util.List;
-
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 public class TrackController {
@@ -23,20 +23,40 @@ public class TrackController {
         this.parcelRepository = parcelRepository;
     }
 
-    @GetMapping("/carriers/{id}")
-    public ResponseEntity<Carrier> getById(@RequestParam long id) {
+    @GetMapping("/carriers")
+    public ResponseEntity<Void> login(@RequestHeader("User") String user, @RequestHeader("Password") String password) {
         try {
-            Carrier carrier = carrierRepository.findById(id);
-            return new ResponseEntity<>(carrier, HttpStatus.OK);
+            boolean correctCredentials = carrierRepository.findAll().stream()
+                    .filter(carrier -> Objects.equals(carrier.getName(), user) && Objects.equals(carrier.getPassword(), password))
+                    .map(anyCarrier -> Boolean.TRUE)
+                    .findAny()
+                    .orElse(Boolean.FALSE);
+            return correctCredentials ? new ResponseEntity<>(null, HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/parcels")
-    public ResponseEntity<List<Parcel>> insertParcels(@RequestBody List<Parcel> parcels) {
-        parcelRepository.saveAll(parcels);
-        return new ResponseEntity<>(parcels, HttpStatus.OK);
+    public ResponseEntity<Void> loadParcels(@RequestBody List<Parcel> parcels) {
+        try {
+            parcelRepository.saveAll(parcels);
+            return new ResponseEntity<>(null, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/parcels/{orderNumber}")
+    public ResponseEntity<Parcel> getParcelInfo(@PathVariable long orderNumber) {
+        try {
+            List<Parcel> parcels = parcelRepository.findAll().stream()
+                    .filter(parcelFound -> parcelFound.getOrderNumber() == orderNumber)
+                    .collect(Collectors.toList());
+            return parcels.size() == 1 ? new ResponseEntity<>(parcels.get(0), HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }

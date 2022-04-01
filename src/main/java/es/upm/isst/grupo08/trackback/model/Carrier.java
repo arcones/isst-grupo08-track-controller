@@ -3,17 +3,17 @@ package es.upm.isst.grupo08.trackback.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name="Carrier")
+@Table(name="CARRIER")
 public class Carrier {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name= "Name")
+    @Column(name= "NAME")
     private String name;
 
-    @Column(name="Password")
+    @Column(name="PASSWORD")
     private String password;
 
     public Carrier() {

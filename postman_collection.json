@@ -1,0 +1,99 @@
+{
+	"info": {
+		"_postman_id": "41294990-831a-4cad-be93-e68b8ab52959",
+		"name": "Trackermaster",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Insert Parcels",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"trackingNumber\": \"tr7891\",\n        \"carrierId\": 1,\n        \"state\": \"En transito\"\n    },\n    {\n        \"trackingNumber\": \"1233\",\n        \"carrierId\": 1,\n        \"state\": \"En transito\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/parcels",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"parcels"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get my parcel",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/parcels/tr7891",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"parcels",
+						"tr7891"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Carrier Login",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "User",
+						"value": "seur",
+						"type": "text"
+					},
+					{
+						"key": "Password",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/carriers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"carriers"
+					],
+					"query": [
+						{
+							"key": "User",
+							"value": "seur",
+							"disabled": true
+						},
+						{
+							"key": "Password",
+							"value": "s3ur",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

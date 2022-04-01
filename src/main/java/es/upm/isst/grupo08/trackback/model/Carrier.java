@@ -3,15 +3,15 @@ package es.upm.isst.grupo08.trackback.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name="CARRIER")
+@Table(name="Carrier")
 public class Carrier {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name= "CarrierName")
-    private String carrierName;
+    @Column(name= "Name")
+    private String name;
 
     @Column(name="Password")
     private String password;
@@ -19,8 +19,8 @@ public class Carrier {
     public Carrier() {
     }
 
-    public Carrier(String carrierName, String password) {
-        this.carrierName = carrierName;
+    public Carrier(String name, String password) {
+        this.name = name;
         this.password = password;
     }
 
@@ -28,12 +28,12 @@ public class Carrier {
         return id;
     }
 
-    public String getCarrierName() {
-        return carrierName;
+    public String getName() {
+        return name;
     }
 
-    public void setCarrierName(String carrierName) {
-        this.carrierName = carrierName;
+    public void setName(String carrierName) {
+        this.name = carrierName;
     }
 
     public String getPassword() {

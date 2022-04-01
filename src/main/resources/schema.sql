@@ -1,16 +1,14 @@
-CREATE TABLE CARRIER 
+CREATE TABLE Carrier
 (
-id INT AUTO_INCREMENT PRIMARY KEY,
-name VARCHAR(250) NOT NULL,
-password VARCHAR(50) NOT NULL
+    Id       INT     NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+    Name     VARCHAR(50) NOT NULL,
+    Password VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE PARCEL 
+CREATE TABLE Order
 (
-id INT AUTO_INCREMENT PRIMARY KEY,
-track_number VARCHAR(250) NOT NULL,
-status VARCHAR(50) NOT NULL,
-carrier_id INT,
- foreign key (carrier_id) references CARRIER(id)
+    Id          INT     NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    OrderNumber INT     NOT NULL,
+    CarrierId   INT     NOT NULL AUTO_INCREMENT,
+    State       VARCHAR(50) NOT NULL
 );
-

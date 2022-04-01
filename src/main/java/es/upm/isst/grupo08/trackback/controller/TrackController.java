@@ -4,19 +4,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import es.upm.isst.grupo08.trackback.model.Carrier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import es.upm.isst.grupo08.trackback.model.Track;
 import es.upm.isst.grupo08.trackback.repository.TrackRepository;
 
 @RestController
@@ -26,12 +20,21 @@ public class TrackController {
 
     public static final Logger log = LoggerFactory.getLogger(TrackController.class);
 
-    public TrackController(TrackRepository t) {
-
-        this.trackRepository = t;
-
+    public TrackController(TrackRepository trackRepository) {
+        this.trackRepository = trackRepository;
     }
 
+    @GetMapping
+    public ResponseEntity<Carrier> findByName(@RequestParam String carrierName) {
+        try {
+            Carrier carrier = trackRepository.findByName(carrierName);
+            return new ResponseEntity<>(carrier, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /*
     @GetMapping("/tracks")
 
     List<Track> readAll() {
@@ -127,6 +130,6 @@ public class TrackController {
 
       }).orElse(new ResponseEntity<Track>(HttpStatus.NOT_FOUND));  
 
-    }
+    }*/
 
 }

@@ -10,8 +10,8 @@ public class Parcel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name="ORDER_NUMBER")
-    private long orderNumber;
+    @Column(name="TRACKING_NUMBER")
+    private String trackingNumber;
 
     @Column(name="CARRIER_ID")
     private long carrierId;
@@ -22,8 +22,8 @@ public class Parcel {
     public Parcel() {
     }
 
-    public Parcel(long orderNumber, long carrierId, String state) {
-        this.orderNumber = orderNumber;
+    public Parcel(String trackingNumber, long carrierId, String state) {
+        this.trackingNumber = trackingNumber;
         this.carrierId = carrierId;
         this.state = state;
     }
@@ -32,12 +32,12 @@ public class Parcel {
         return id;
     }
 
-    public long getOrderNumber() {
-        return orderNumber;
+    public String getTrackingNumber() {
+        return trackingNumber;
     }
 
-    public void setOrderNumber(long orderNumber) {
-        this.orderNumber = orderNumber;
+    public void setTrackingNumber(String orderNumber) {
+        this.trackingNumber = orderNumber;
     }
 
     public long getCarrierId() {

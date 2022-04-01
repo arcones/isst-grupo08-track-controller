@@ -27,7 +27,7 @@ public class TrackController {
     public ResponseEntity<Void> login(@RequestHeader("User") String user, @RequestHeader("Password") String password) {
         try {
             boolean correctCredentials = carrierRepository.findAll().stream()
-                    .filter(carrier -> Objects.equals(carrier.getName(), user) && Objects.equals(carrier.getPassword(), password))
+                    .filter(carrier -> carrier.getName().equalsIgnoreCase(user) && Objects.equals(carrier.getPassword(), password))
                     .map(anyCarrier -> Boolean.TRUE)
                     .findAny()
                     .orElse(Boolean.FALSE);
@@ -47,11 +47,11 @@ public class TrackController {
         }
     }
 
-    @GetMapping("/parcels/{orderNumber}")
-    public ResponseEntity<Parcel> getParcelInfo(@PathVariable long orderNumber) {
+    @GetMapping("/parcels/{trackingNumber}")
+    public ResponseEntity<Parcel> getParcelInfo(@PathVariable String trackingNumber) {
         try {
             List<Parcel> parcels = parcelRepository.findAll().stream()
-                    .filter(parcelFound -> parcelFound.getOrderNumber() == orderNumber)
+                    .filter(parcelFound -> Objects.equals(parcelFound.getTrackingNumber(), trackingNumber))
                     .collect(Collectors.toList());
             return parcels.size() == 1 ? new ResponseEntity<>(parcels.get(0), HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         } catch (Exception e) {

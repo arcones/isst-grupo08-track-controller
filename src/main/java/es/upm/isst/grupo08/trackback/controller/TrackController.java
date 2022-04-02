@@ -10,10 +10,16 @@ import es.upm.isst.grupo08.trackback.repository.CarrierRepository;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static java.util.logging.Level.*;
 
 @RestController
 public class TrackController {
+
+    public static final Logger LOGGER = Logger.getLogger(TrackController.class.getName());
 
     private final CarrierRepository carrierRepository;
     private final ParcelRepository parcelRepository;
@@ -38,10 +44,18 @@ public class TrackController {
     }
 
     @PostMapping("/parcels")
-    public ResponseEntity<Void> loadParcels(@RequestBody List<Parcel> parcels) {
+    public ResponseEntity<Void> loadParcels(@RequestBody List<Parcel> inputParcels) {
         try {
-            parcelRepository.saveAll(parcels);
-            return new ResponseEntity<>(null, HttpStatus.OK);
+            if (findDuplicateTrackingNumbers(inputParcels)) {
+                return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+            } else if (findIncorrectCarriers(inputParcels)) {
+                return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
+            } else if (findIncorrectStatuses(inputParcels)) {
+                return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+            } else {
+                parcelRepository.saveAll(inputParcels);
+                return new ResponseEntity<>(null, HttpStatus.OK);
+            }
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -57,6 +71,76 @@ public class TrackController {
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private boolean findDuplicateTrackingNumbers(List<Parcel> inputParcels) {
+        return findDuplicateTrackingNumbersAmongInput(inputParcels) || findDuplicateTrackingNumbersWithCurrents(inputParcels);
+    }
+
+    private boolean findDuplicateTrackingNumbersWithCurrents(List<Parcel> inputParcels) {
+        List<String> currentTrackingNumbers = parcelRepository.findAll().stream()
+                .map(Parcel::getTrackingNumber).collect(Collectors.toList());
+
+        boolean duplicateTrackingNumberWithCurrents = inputParcels.stream()
+                .map(Parcel::getTrackingNumber)
+                .filter(currentTrackingNumbers::contains)
+                .map(trackingNumber -> Boolean.TRUE)
+                .findAny()
+                .orElse(Boolean.FALSE);
+
+        if (duplicateTrackingNumberWithCurrents)
+            LOGGER.log(WARNING, "There are parcels with a tracking number already present in the database");
+
+        return duplicateTrackingNumberWithCurrents;
+    }
+
+    private boolean findDuplicateTrackingNumbersAmongInput(List<Parcel> inputParcels) {
+        List<String> currentTrackingNumbersAsList = inputParcels.stream()
+                .map(Parcel::getTrackingNumber).collect(Collectors.toList());
+
+        Set<String> currentTrackingNumbersAsSet = inputParcels.stream()
+                .map(Parcel::getTrackingNumber)
+                .collect(Collectors.toSet());
+
+        boolean duplicateTrackingNumbersAmongInputs = currentTrackingNumbersAsList.size() != currentTrackingNumbersAsSet.size();
+
+        if (duplicateTrackingNumbersAmongInputs)
+            LOGGER.log(WARNING, "There are parcels with the same tracking number in the input list");
+
+        return duplicateTrackingNumbersAmongInputs;
+    }
+
+
+    private boolean findIncorrectCarriers(List<Parcel> inputParcels) {
+        List<Long> currentCarriers = parcelRepository.findAll().stream()
+                .map(Parcel::getCarrierId).collect(Collectors.toList());
+
+        boolean incorrectCarrier = inputParcels.stream()
+                .map(Parcel::getCarrierId)
+                .filter(carrier -> !currentCarriers.contains(carrier))
+                .map(inputCarrier -> Boolean.TRUE)
+                .findAny()
+                .orElse(Boolean.FALSE);
+
+        if (incorrectCarrier)
+            LOGGER.log(WARNING, "There are parcels with a carrier that doesn't exist in the database");
+
+        return incorrectCarrier;
+    }
+
+    private boolean findIncorrectStatuses(List<Parcel> inputParcels) {
+        List<String> correctStatuses = List.of("En tránsito", "Entregado", "Error en la entrega");
+        boolean incorrectStatus = inputParcels.stream()
+                .map(Parcel::getStatus)
+                .filter(status -> !correctStatuses.contains(status))
+                .map(status -> Boolean.TRUE)
+                .findAny()
+                .orElse(Boolean.FALSE);
+
+        if (incorrectStatus)
+            LOGGER.log(WARNING, "There are parcels with an incorrect status");
+
+        return incorrectStatus;
     }
 
 }

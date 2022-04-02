@@ -3,29 +3,29 @@ package es.upm.isst.grupo08.trackback.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name="PARCEL")
+@Table(name = "PARCEL")
 public class Parcel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name="TRACKING_NUMBER")
+    @Column(name = "TRACKING_NUMBER", unique = true, nullable = false)
     private String trackingNumber;
 
-    @Column(name="CARRIER_ID")
+    @Column(name = "CARRIER_ID", nullable = false)
     private long carrierId;
 
-    @Column(name="STATE")
-    private String state;
+    @Column(name = "STATUS", nullable = false)
+    private String status;
 
     public Parcel() {
     }
 
-    public Parcel(String trackingNumber, long carrierId, String state) {
+    public Parcel(String trackingNumber, long carrierId, String status) {
         this.trackingNumber = trackingNumber;
         this.carrierId = carrierId;
-        this.state = state;
+        this.status = status;
     }
 
     public long getId() {
@@ -48,11 +48,11 @@ public class Parcel {
         this.carrierId = carrierId;
     }
 
-    public String getState() {
-        return state;
+    public String getStatus() {
+        return status;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

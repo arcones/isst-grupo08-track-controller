@@ -10,10 +10,10 @@ public class Carrier {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name= "NAME")
+    @Column(name= "NAME", nullable = false, unique = true)
     private String name;
 
-    @Column(name="PASSWORD")
+    @Column(name="PASSWORD", nullable = false)
     private String password;
 
     public Carrier() {

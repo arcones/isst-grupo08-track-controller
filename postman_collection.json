@@ -6,13 +6,26 @@
 	},
 	"item": [
 		{
-			"name": "Insert Parcels",
+			"name": "[OK] - Insert Parcels",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "[\n    {\n        \"trackingNumber\": \"tr7891\",\n        \"carrierId\": 1,\n        \"state\": \"En transito\"\n    },\n    {\n        \"trackingNumber\": \"1233\",\n        \"carrierId\": 1,\n        \"state\": \"En transito\"\n    }\n]",
+					"raw": "[\n    {\n        \"trackingNumber\": \"{{$guid}}\",\n        \"carrierId\": 1,\n        \"status\": \"En tránsito\"\n    },\n    {\n        \"trackingNumber\": \"{{$guid}}\",\n        \"carrierId\": 1,\n        \"status\": \"En tránsito\"\n    }\n]",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -34,12 +47,196 @@
 			"response": []
 		},
 		{
-			"name": "Get my parcel",
+			"name": "[KO] - Duplicate Tracking Numbers Among Inputs Insert Parcels",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 409\", function () {",
+							"    pm.response.to.have.status(409);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"trackingNumber\": \"tr7891\",\n        \"carrierId\": 1,\n        \"status\": \"En tránsito\"\n    },\n    {\n        \"trackingNumber\": \"tr7891\",\n        \"carrierId\": 1,\n        \"status\": \"En tránsito\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/parcels",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"parcels"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "[KO] - Duplicate Tracking Numbers With Database Insert Parcels Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 409\", function () {",
+							"    pm.response.to.have.status(409);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"trackingNumber\": \"SEUR1234XYZ\",\n        \"carrierId\": 1,\n        \"status\": \"En tránsito\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/parcels",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"parcels"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "[KO] - Carrier not existing Insert Parcels",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 412\", function () {",
+							"    pm.response.to.have.status(412);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"trackingNumber\": \"test123\",\n        \"carrierId\": 800,\n        \"status\": \"En tránsito\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/parcels",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"parcels"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "[KO] - Status not existing Insert Parcels",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 406\", function () {",
+							"    pm.response.to.have.status(406);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"trackingNumber\": \"{{$guid}}\",\n        \"carrierId\": 1,\n        \"status\": \"No es un estado\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/parcels",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"parcels"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "[OK] - Get my parcel",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Body matches\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.trackingNumber).to.eql(\"123\");",
+							"    pm.expect(jsonData.carrierId).to.eql(2);",
+							"    pm.expect(jsonData.status).to.eql(\"En tránsito\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/parcels/tr7891",
+					"raw": "http://localhost:8080/parcels/123",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -47,14 +244,60 @@
 					"port": "8080",
 					"path": [
 						"parcels",
-						"tr7891"
+						"123"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Carrier Login",
+			"name": "[KO] - Get my parcel",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/parcels/inexistent163834",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"parcels",
+						"inexistent163834"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "[OK] - Carrier Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [
@@ -78,18 +321,49 @@
 					"port": "8080",
 					"path": [
 						"carriers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "[KO] - Carrier Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "User",
+						"value": "seur",
+						"type": "text"
+					},
+					{
+						"key": "Password",
+						"value": "wrongPassword",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/carriers",
+					"protocol": "http",
+					"host": [
+						"localhost"
 					],
-					"query": [
-						{
-							"key": "User",
-							"value": "seur",
-							"disabled": true
-						},
-						{
-							"key": "Password",
-							"value": "s3ur",
-							"disabled": true
-						}
+					"port": "8080",
+					"path": [
+						"carriers"
 					]
 				}
 			},

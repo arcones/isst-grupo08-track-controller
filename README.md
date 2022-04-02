@@ -1,4 +1,4 @@
-# isst-grupo08-track-controller :articulated_lorry
+# isst-grupo08-track-controller :articulated_lorry:
 
 Run :runner: the application with:
 ```bash

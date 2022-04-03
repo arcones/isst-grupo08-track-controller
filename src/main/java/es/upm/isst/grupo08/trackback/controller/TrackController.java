@@ -54,10 +54,9 @@ public class TrackController {
     public ResponseEntity<Void> loadParcels(@RequestBody String body) {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            String bodyWithSuffix = body.substring(21);
-            String cleanBody = bodyWithSuffix.replace(",\"timeout\":5000}", "");
+            String cleanParcels = body.replace("{\"data\":", "").replace("]}", "]");
 
-            List<Parcel> inputParcels = Arrays.asList(mapper.readValue(cleanBody, Parcel[].class));
+            List<Parcel> inputParcels = Arrays.asList(mapper.readValue(cleanParcels, Parcel[].class));
 
             if (findDuplicateTrackingNumbers(inputParcels)) {
                 return new ResponseEntity<>(null, HttpStatus.CONFLICT);
@@ -67,6 +66,7 @@ public class TrackController {
                 return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
             } else {
                 parcelRepository.saveAll(inputParcels);
+                LOGGER.log(INFO, "Parcels have been loaded succesfully");
                 return new ResponseEntity<>(null, HttpStatus.OK);
             }
         } catch (Exception e) {

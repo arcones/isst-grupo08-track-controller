@@ -1,5 +1,6 @@
 package es.upm.isst.grupo08.trackback.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import es.upm.isst.grupo08.trackback.model.Parcel;
 import es.upm.isst.grupo08.trackback.repository.ParcelRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,9 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import es.upm.isst.grupo08.trackback.repository.CarrierRepository;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -34,6 +33,7 @@ public class TrackController {
         this.parcelRepository = parcelRepository;
     }
 
+    @CrossOrigin
     @Operation(summary = "Login for carriers")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Credentials are correct"), @ApiResponse(responseCode = "404", description = "Credentials doesn't match with any user in the database")})
     @GetMapping("/carriers")
@@ -42,15 +42,23 @@ public class TrackController {
             boolean correctCredentials = carrierRepository.findAll().stream().filter(carrier -> carrier.getName().equalsIgnoreCase(user) && Objects.equals(carrier.getPassword(), password)).map(anyCarrier -> Boolean.TRUE).findAny().orElse(Boolean.FALSE);
             return correctCredentials ? new ResponseEntity<>(null, HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
+            LOGGER.log(SEVERE, "Exception arose in GET /carriers request: \n " + e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    @CrossOrigin
     @Operation(summary = "Bulk upload of parcels for carriers")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Upload was successful"), @ApiResponse(responseCode = "412", description = "There is an error in the carrier IDs provided"), @ApiResponse(responseCode = "406", description = "There is an error in any of the status provided for the parcels"), @ApiResponse(responseCode = "409", description = "There are duplicates within the tracking numbers provided and the system"),})
     @PostMapping("/parcels")
-    public ResponseEntity<Void> loadParcels(@RequestBody List<Parcel> inputParcels) {
+    public ResponseEntity<Void> loadParcels(@RequestBody String body) {
         try {
+            ObjectMapper mapper = new ObjectMapper();
+            String bodyWithSuffix = body.substring(21);
+            String cleanBody = bodyWithSuffix.replace(",\"timeout\":5000}", "");
+
+            List<Parcel> inputParcels = Arrays.asList(mapper.readValue(cleanBody, Parcel[].class));
+
             if (findDuplicateTrackingNumbers(inputParcels)) {
                 return new ResponseEntity<>(null, HttpStatus.CONFLICT);
             } else if (findIncorrectCarriers(inputParcels)) {
@@ -62,10 +70,13 @@ public class TrackController {
                 return new ResponseEntity<>(null, HttpStatus.OK);
             }
         } catch (Exception e) {
+            LOGGER.log(SEVERE, "Exception arose in POST /parcels request: \n " + e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+
+    @CrossOrigin
     @Operation(summary = "Get parcel information given its tracking number")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Parcel found and data retrieved"), @ApiResponse(responseCode = "404", description = "Parcel not found")})
     @GetMapping("/parcels/{trackingNumber}")
@@ -74,6 +85,7 @@ public class TrackController {
             List<Parcel> parcels = parcelRepository.findAll().stream().filter(parcelFound -> Objects.equals(parcelFound.getTrackingNumber(), trackingNumber)).collect(Collectors.toList());
             return parcels.size() == 1 ? new ResponseEntity<>(parcels.get(0), HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
+            LOGGER.log(SEVERE, "Exception arose in GET /parcels/{trackingNumber} request: \n " + e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

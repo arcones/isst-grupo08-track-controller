@@ -66,7 +66,7 @@ public class TrackController {
                 return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
             } else {
                 parcelRepository.saveAll(inputParcels);
-                LOGGER.log(INFO, "Parcels have been loaded succesfully");
+                LOGGER.log(INFO, "Parcels have been loaded successfully");
                 return new ResponseEntity<>(null, HttpStatus.OK);
             }
         } catch (Exception e) {

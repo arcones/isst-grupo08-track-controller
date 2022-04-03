@@ -1,6 +1,7 @@
 package es.upm.isst.grupo08.trackback.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import es.upm.isst.grupo08.trackback.model.Carrier;
 import es.upm.isst.grupo08.trackback.model.Parcel;
 import es.upm.isst.grupo08.trackback.repository.ParcelRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,12 +35,23 @@ public class TrackController {
     }
 
     @CrossOrigin
+    @Operation(summary = "Health of the server")
+    @GetMapping("/health")
+    public ResponseEntity<Void> health(){
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+    @CrossOrigin
     @Operation(summary = "Login for carriers")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Credentials are correct"), @ApiResponse(responseCode = "404", description = "Credentials doesn't match with any user in the database")})
     @GetMapping("/carriers")
     public ResponseEntity<Void> login(@RequestHeader("User") String user, @RequestHeader("Password") String password) {
         try {
-            boolean correctCredentials = carrierRepository.findAll().stream().filter(carrier -> carrier.getName().equalsIgnoreCase(user) && Objects.equals(carrier.getPassword(), password)).map(anyCarrier -> Boolean.TRUE).findAny().orElse(Boolean.FALSE);
+            boolean correctCredentials = carrierRepository.findAll().stream()
+                    .filter(carrier -> carrier.getName().equalsIgnoreCase(user) && Objects.equals(carrier.getPassword(), password))
+                    .map(anyCarrier -> Boolean.TRUE)
+                    .findAny()
+                    .orElse(Boolean.FALSE);
             return correctCredentials ? new ResponseEntity<>(null, HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             LOGGER.log(SEVERE, "Exception arose in GET /carriers request: \n " + e.getMessage());
@@ -49,19 +61,36 @@ public class TrackController {
 
     @CrossOrigin
     @Operation(summary = "Bulk upload of parcels for carriers")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Upload was successful"), @ApiResponse(responseCode = "412", description = "There is an error in the carrier IDs provided"), @ApiResponse(responseCode = "406", description = "There is an error in any of the status provided for the parcels"), @ApiResponse(responseCode = "409", description = "There are duplicates within the tracking numbers provided and the system"),})
-    @PostMapping("/parcels")
-    public ResponseEntity<Void> loadParcels(@RequestBody String body) {
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Upload was successful"),
+            @ApiResponse(responseCode = "412", description = "The carrier provided in not registered in the system"),
+            @ApiResponse(responseCode = "406", description = "There is an error in any of the status provided for the parcels"),
+            @ApiResponse(responseCode = "409", description = "There are duplicates within the tracking numbers provided and the system"),})
+    @PostMapping("/parcels/{carrierName}")
+    public ResponseEntity<Void> loadParcels(@PathVariable String carrierName, @RequestBody String body) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             String cleanParcels = body.replace("{\"data\":", "").replace("]}", "]");
+            List<LinkedHashMap> list = mapper.readValue(cleanParcels, List.class);
 
-            List<Parcel> inputParcels = Arrays.asList(mapper.readValue(cleanParcels, Parcel[].class));
+            Optional<Carrier> carrier = carrierRepository.findAll().stream()
+                    .filter(aCarrier -> Objects.equals(aCarrier.getName(), carrierName))
+                    .findAny();
+
+            if(carrier.isEmpty()) {
+                return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
+            }
+
+            List<Parcel> inputParcels = list.stream()
+                    .map(element -> new Parcel(
+                            String.valueOf(element.get("trackingNumber")),
+                            carrier.get().getId(),
+                            String.valueOf(element.get("status")))
+                    )
+                    .collect(Collectors.toList());
 
             if (findDuplicateTrackingNumbers(inputParcels)) {
                 return new ResponseEntity<>(null, HttpStatus.CONFLICT);
-            } else if (findIncorrectCarriers(inputParcels)) {
-                return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
             } else if (findIncorrectStatuses(inputParcels)) {
                 return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
             } else {
@@ -118,21 +147,14 @@ public class TrackController {
         return duplicateTrackingNumbersAmongInputs;
     }
 
-
-    private boolean findIncorrectCarriers(List<Parcel> inputParcels) {
-        List<Long> currentCarriers = parcelRepository.findAll().stream().map(Parcel::getCarrierId).collect(Collectors.toList());
-
-        boolean incorrectCarrier = inputParcels.stream().map(Parcel::getCarrierId).filter(carrier -> !currentCarriers.contains(carrier)).map(inputCarrier -> Boolean.TRUE).findAny().orElse(Boolean.FALSE);
-
-        if (incorrectCarrier)
-            LOGGER.log(WARNING, "There are parcels with a carrier that doesn't exist in the database");
-
-        return incorrectCarrier;
-    }
-
     private boolean findIncorrectStatuses(List<Parcel> inputParcels) {
         List<String> correctStatuses = List.of("En tránsito", "Entregado", "Error en la entrega");
-        boolean incorrectStatus = inputParcels.stream().map(Parcel::getStatus).filter(status -> !correctStatuses.contains(status)).map(status -> Boolean.TRUE).findAny().orElse(Boolean.FALSE);
+        boolean incorrectStatus = inputParcels.stream()
+                .map(Parcel::getStatus)
+                .filter(status -> !correctStatuses.contains(status))
+                .map(status -> Boolean.TRUE)
+                .findAny()
+                .orElse(Boolean.FALSE);
 
         if (incorrectStatus) LOGGER.log(WARNING, "There are parcels with an incorrect status");
 

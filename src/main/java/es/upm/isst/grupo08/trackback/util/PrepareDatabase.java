@@ -24,19 +24,18 @@ class PrepareDatabase implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        if (carrierRepository.findAll().isEmpty()) {
+            LOGGER.log(INFO, "Filling database...");
 
-        LOGGER.log(INFO, "Filling database...");
+            List<Carrier> initialCarriers = List.of(
+                    new Carrier("seur", "test"),
+                    new Carrier("mrw", "test"),
+                    new Carrier("correos", "test")
+            );
 
-        List<Carrier> initialCarriers = List.of(
-            new Carrier("seur", "test"),
-            new Carrier("mrw", "test"),
-            new Carrier("correos", "test")
-        );
-
-        carrierRepository.saveAll(initialCarriers);
-
+            carrierRepository.saveAll(initialCarriers);
+        }
         LOGGER.log(INFO, "Database prepared");
-
     }
 
 }

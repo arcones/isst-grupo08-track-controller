@@ -1,1 +1,0 @@
-web: ./mvnw clean install spring-boot:run -DskipTests=true

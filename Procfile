@@ -1,1 +1,1 @@
-web: java -Dserver.port=8080 -jar target/track-back-0.0.1-SNAPSHOT.jar
+web: ./mvnw clean install spring-boot:run -DskipTests=true

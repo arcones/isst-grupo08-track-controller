@@ -1,6 +1,8 @@
 # isst-grupo08-track-controller :articulated_lorry:
 
-Run :runner: the application with:
+Set the `JDBC_DATABASE_URL` environment variable with the full URL of the postgres database.
+
+Then run :runner: the application with:
 ```bash
 ./mvnw clean install spring-boot:run -DskipTests=true
 ```

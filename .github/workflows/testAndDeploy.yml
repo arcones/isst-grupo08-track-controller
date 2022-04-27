@@ -16,6 +16,5 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: 17.x
-        cache: 'npm'
     - run: npm install -g newman
     - run: newman run postman_collection.json

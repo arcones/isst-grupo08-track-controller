@@ -1,17 +1,30 @@
 name: Test and Deploy
+
 on:
+
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  build:
 
+  test_n_deploy:
+  
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+
+    - name: Checkout
+      uses: actions/checkout@v2.4.2
+
+    - name: Deploy to heroku
+      uses: AkhileshNS/heroku-deploy@v3.12.12
+      with:
+        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+        heroku_email: ${{ secrets.HEROKU_MAIL }}
+        heroku_app_name: isst-grupo08-track-controller
+
     - name: Use Node.js 17.x
       uses: actions/setup-node@v3
       with:

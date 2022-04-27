@@ -6,22 +6,15 @@ on:
     branches: [ main ]
 
 jobs:
-  # Unit test should go here
-
-  deploy:
+  test_n_deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: AkhileshNS/heroku-deploy@v3.12.12
-      name: Deploy to heroku
+    - name: Deploy to heroku
+      uses: AkhileshNS/heroku-deploy@v3.12.12
       with:
         heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
         heroku_email: ${{ secrets.HEROKU_MAIL }}
-  
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
     - name: Use Node.js 17.x
       uses: actions/setup-node@v3
       with:

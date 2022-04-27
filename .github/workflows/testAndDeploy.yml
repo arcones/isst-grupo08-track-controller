@@ -10,11 +10,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [12.x, 14.x, 16.x]
-        # TODO hacer primero el deploy a heroku
-
     steps:
     - uses: actions/checkout@v3
     - name: Use Node.js 17.x

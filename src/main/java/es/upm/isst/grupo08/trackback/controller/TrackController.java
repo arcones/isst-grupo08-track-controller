@@ -111,8 +111,16 @@ public class TrackController {
             @ApiResponse(responseCode = "412", description = "The carrier provided in not registered in the system"),
     })
     @DeleteMapping("/parcels/{carrierName}")
-    public ResponseEntity<Void> deleteParcels() {
+    public ResponseEntity<Void> deleteParcels(@PathVariable String carrierName) {
         try {
+            //TODO mergear este trozo de código con el del controlador anterior
+            Optional<Carrier> carrier = carrierRepository.findAll().stream()
+                    .filter(aCarrier -> Objects.equals(aCarrier.getName(), carrierName))
+                    .findAny();
+
+            if (carrier.isEmpty()) {
+                return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
+            }
             parcelRepository.deleteAll();
             LOGGER.log(INFO, "Parcels have been deleted successfully");
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);

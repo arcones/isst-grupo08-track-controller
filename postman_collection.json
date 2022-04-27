@@ -1,10 +1,44 @@
 {
 	"info": {
-		"_postman_id": "41294990-831a-4cad-be93-e68b8ab52959",
-		"name": "Trackermaster",
+		"_postman_id": "62a5c4a2-e597-4a92-bac1-1533d52c9072",
+		"name": "Trackermaster Cloud",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
+		{
+			"name": "[OK] - Health Check",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://isst-grupo08-track-controller.herokuapp.com/health",
+					"protocol": "https",
+					"host": [
+						"isst-grupo08-track-controller",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
 		{
 			"name": "[OK] - Insert Parcels",
 			"event": [
@@ -25,7 +59,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "[\n    {\n        \"trackingNumber\": \"{{$guid}}\",\n        \"carrierId\": 1,\n        \"status\": \"En tránsito\"\n    },\n    {\n        \"trackingNumber\": \"{{$guid}}\",\n        \"carrierId\": 1,\n        \"status\": \"En tránsito\"\n    }\n]",
+					"raw": "[\n    {\n        \"trackingNumber\": \"SEUR1234XYZ\",\n        \"status\": \"En tránsito\"\n    },\n    {\n        \"trackingNumber\": \"{{$guid}}\",\n        \"status\": \"En tránsito\"\n    }\n]",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -33,14 +67,16 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/parcels",
-					"protocol": "http",
+					"raw": "https://isst-grupo08-track-controller.herokuapp.com/parcels/seur",
+					"protocol": "https",
 					"host": [
-						"localhost"
+						"isst-grupo08-track-controller",
+						"herokuapp",
+						"com"
 					],
-					"port": "8080",
 					"path": [
-						"parcels"
+						"parcels",
+						"seur"
 					]
 				}
 			},
@@ -66,7 +102,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "[\n    {\n        \"trackingNumber\": \"tr7891\",\n        \"carrierId\": 1,\n        \"status\": \"En tránsito\"\n    },\n    {\n        \"trackingNumber\": \"tr7891\",\n        \"carrierId\": 1,\n        \"status\": \"En tránsito\"\n    }\n]",
+					"raw": "[\n    {\n        \"trackingNumber\": \"tr7891\",\n        \"status\": \"En tránsito\"\n    },\n    {\n        \"trackingNumber\": \"tr7891\",\n        \"status\": \"En tránsito\"\n    }\n]",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -74,14 +110,16 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/parcels",
-					"protocol": "http",
+					"raw": "https://isst-grupo08-track-controller.herokuapp.com/parcels/seur",
+					"protocol": "https",
 					"host": [
-						"localhost"
+						"isst-grupo08-track-controller",
+						"herokuapp",
+						"com"
 					],
-					"port": "8080",
 					"path": [
-						"parcels"
+						"parcels",
+						"seur"
 					]
 				}
 			},
@@ -107,7 +145,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "[\n    {\n        \"trackingNumber\": \"SEUR1234XYZ\",\n        \"carrierId\": 1,\n        \"status\": \"En tránsito\"\n    }\n]",
+					"raw": "[\n    {\n        \"trackingNumber\": \"SEUR1234XYZ\",\n        \"status\": \"En tránsito\"\n    }\n]",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -115,14 +153,16 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/parcels",
-					"protocol": "http",
+					"raw": "https://isst-grupo08-track-controller.herokuapp.com/parcels/seur",
+					"protocol": "https",
 					"host": [
-						"localhost"
+						"isst-grupo08-track-controller",
+						"herokuapp",
+						"com"
 					],
-					"port": "8080",
 					"path": [
-						"parcels"
+						"parcels",
+						"seur"
 					]
 				}
 			},
@@ -148,7 +188,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "[\n    {\n        \"trackingNumber\": \"test123\",\n        \"carrierId\": 800,\n        \"status\": \"En tránsito\"\n    }\n]",
+					"raw": "[\n    {\n        \"trackingNumber\": \"test123\",\n        \"status\": \"En tránsito\"\n    }\n]",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -156,14 +196,16 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/parcels",
-					"protocol": "http",
+					"raw": "https://isst-grupo08-track-controller.herokuapp.com/parcels/achinguaie",
+					"protocol": "https",
 					"host": [
-						"localhost"
+						"isst-grupo08-track-controller",
+						"herokuapp",
+						"com"
 					],
-					"port": "8080",
 					"path": [
-						"parcels"
+						"parcels",
+						"achinguaie"
 					]
 				}
 			},
@@ -189,7 +231,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "[\n    {\n        \"trackingNumber\": \"{{$guid}}\",\n        \"carrierId\": 1,\n        \"status\": \"No es un estado\"\n    }\n]",
+					"raw": "[\n    {\n        \"trackingNumber\": \"{{$guid}}\",\n        \"status\": \"No es un estado\"\n    }\n]",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -197,14 +239,16 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/parcels",
-					"protocol": "http",
+					"raw": "https://isst-grupo08-track-controller.herokuapp.com/parcels/seur",
+					"protocol": "https",
 					"host": [
-						"localhost"
+						"isst-grupo08-track-controller",
+						"herokuapp",
+						"com"
 					],
-					"port": "8080",
 					"path": [
-						"parcels"
+						"parcels",
+						"seur"
 					]
 				}
 			},
@@ -223,8 +267,8 @@
 							"",
 							"pm.test(\"Body matches\", function () {",
 							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.trackingNumber).to.eql(\"123\");",
-							"    pm.expect(jsonData.carrierId).to.eql(2);",
+							"    pm.expect(jsonData.trackingNumber).to.eql(\"SEUR1234XYZ\");",
+							"    pm.expect(jsonData.carrierId).to.eql(1);",
 							"    pm.expect(jsonData.status).to.eql(\"En tránsito\");",
 							"});"
 						],
@@ -236,15 +280,16 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/parcels/123",
-					"protocol": "http",
+					"raw": "https://isst-grupo08-track-controller.herokuapp.com/parcels/SEUR1234XYZ",
+					"protocol": "https",
 					"host": [
-						"localhost"
+						"isst-grupo08-track-controller",
+						"herokuapp",
+						"com"
 					],
-					"port": "8080",
 					"path": [
 						"parcels",
-						"123"
+						"SEUR1234XYZ"
 					]
 				}
 			},
@@ -269,12 +314,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/parcels/inexistent163834",
-					"protocol": "http",
+					"raw": "https://isst-grupo08-track-controller.herokuapp.com/parcels/inexistent163834",
+					"protocol": "https",
 					"host": [
-						"localhost"
+						"isst-grupo08-track-controller",
+						"herokuapp",
+						"com"
 					],
-					"port": "8080",
 					"path": [
 						"parcels",
 						"inexistent163834"
@@ -313,12 +359,13 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/carriers",
-					"protocol": "http",
+					"raw": "https://isst-grupo08-track-controller.herokuapp.com/carriers",
+					"protocol": "https",
 					"host": [
-						"localhost"
+						"isst-grupo08-track-controller",
+						"herokuapp",
+						"com"
 					],
-					"port": "8080",
 					"path": [
 						"carriers"
 					]
@@ -356,12 +403,13 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/carriers",
-					"protocol": "http",
+					"raw": "https://isst-grupo08-track-controller.herokuapp.com/carriers",
+					"protocol": "https",
 					"host": [
-						"localhost"
+						"isst-grupo08-track-controller",
+						"herokuapp",
+						"com"
 					],
-					"port": "8080",
 					"path": [
 						"carriers"
 					]

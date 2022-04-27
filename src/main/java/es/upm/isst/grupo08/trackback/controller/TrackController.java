@@ -37,7 +37,7 @@ public class TrackController {
     @CrossOrigin
     @Operation(summary = "Health of the server")
     @GetMapping("/health")
-    public ResponseEntity<Void> health(){
+    public ResponseEntity<Void> health() {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
@@ -77,7 +77,7 @@ public class TrackController {
                     .filter(aCarrier -> Objects.equals(aCarrier.getName(), carrierName))
                     .findAny();
 
-            if(carrier.isEmpty()) {
+            if (carrier.isEmpty()) {
                 return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
             }
 
@@ -100,6 +100,24 @@ public class TrackController {
             }
         } catch (Exception e) {
             LOGGER.log(SEVERE, "Exception arose in POST /parcels request: \n " + e.getMessage());
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @CrossOrigin
+    @Operation(summary = "Remove all parcels for a carrier")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Deletion was successful"),
+            @ApiResponse(responseCode = "412", description = "The carrier provided in not registered in the system"),
+    })
+    @DeleteMapping("/parcels/{carrierName}")
+    public ResponseEntity<Void> deleteParcels() {
+        try {
+            parcelRepository.deleteAll();
+            LOGGER.log(INFO, "Parcels have been deleted successfully");
+            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            LOGGER.log(SEVERE, "Exception arose in DELETE /parcels request: \n " + e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

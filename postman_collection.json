@@ -40,6 +40,74 @@
 			"response": []
 		},
 		{
+			"name": "[KO] - Carrier not existing Delete Parcels",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 412\", function () {",
+							"    pm.response.to.have.status(412);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://isst-grupo08-track-controller.herokuapp.com/parcels/perry",
+					"protocol": "https",
+					"host": [
+						"isst-grupo08-track-controller",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"parcels",
+						"perry"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "[OK] - Delete Parcels",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://isst-grupo08-track-controller.herokuapp.com/parcels/seur",
+					"protocol": "https",
+					"host": [
+						"isst-grupo08-track-controller",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"parcels",
+						"seur"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "[OK] - Insert Parcels",
 			"event": [
 				{

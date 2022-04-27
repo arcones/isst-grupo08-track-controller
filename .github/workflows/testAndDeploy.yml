@@ -1,0 +1,26 @@
+name: Test and Deploy
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x, 14.x, 16.x]
+        # TODO hacer primero el deploy a heroku
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js 17.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 17.x
+        cache: 'npm'
+    - run: npm install -g newman
+    - run: newman run postman_collection.json

@@ -8,6 +8,7 @@ public class Parcel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name= "ID")
     private long id;
 
     @Column(name = "TRACKING_NUMBER", unique = true, nullable = false)

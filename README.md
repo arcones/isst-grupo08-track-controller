@@ -9,4 +9,4 @@ Then run :runner: the application with:
 
 Once launched :rocket:, you can check the docs of the API and interact with it :arrows_counterclockwise: [here](http://localhost:8080/swagger-ui/index.html)
 
-There is also a Postman Collection :bookmark_tabs: included with some integration tests :heavy_check_mark:, check it out [here](postman_collection.json)
+There is also a Postman Collection :bookmark_tabs: included with some integration tests :heavy_check_mark:, check it out [here](Projects/Teleko/ISST/Grupo/isst-grupo08-track-controller/tests/postman_collection.json)

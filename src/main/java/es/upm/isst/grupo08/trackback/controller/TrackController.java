@@ -3,6 +3,8 @@ package es.upm.isst.grupo08.trackback.controller;
 import com.univocity.parsers.common.record.Record;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
+import es.upm.isst.grupo08.trackback.controller.error.CarrierNotFoundException;
+import es.upm.isst.grupo08.trackback.model.Carrier;
 import es.upm.isst.grupo08.trackback.model.Parcel;
 import es.upm.isst.grupo08.trackback.repository.CarrierRepository;
 import es.upm.isst.grupo08.trackback.repository.ParcelRepository;
@@ -17,10 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -55,7 +54,6 @@ public class TrackController {
     public ResponseEntity<Void> login(@RequestHeader("User") String user, @RequestHeader("Password") String password) {
         boolean correctCredentials = carrierRepository.findAll().stream().filter(carrier -> carrier.getName().equalsIgnoreCase(user) && Objects.equals(carrier.getPassword(), password)).map(anyCarrier -> Boolean.TRUE).findAny().orElse(Boolean.FALSE);
         return correctCredentials ? new ResponseEntity<>(null, HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-
     }
 
     @CrossOrigin
@@ -63,10 +61,9 @@ public class TrackController {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Upload was successful"), @ApiResponse(responseCode = "412", description = "The carrier provided in not registered in the system"), @ApiResponse(responseCode = "406", description = "There is an error in any of the status provided for the parcels"), @ApiResponse(responseCode = "409", description = "There are duplicates within the tracking numbers provided and the system"),})
     @PostMapping("/parcels/{carrierName}")
     public ResponseEntity<Void> loadParcels(@PathVariable String carrierName, @RequestParam("parcels") MultipartFile file) throws IOException {
-        if (!isCarrierInDatabase(carrierName)) {
-            return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
-        }
+        Carrier carrier = getCarrierFromDBOrElseAbort(carrierName);
 
+        //TODO sacar el parseo de csv a un método privado
         List<Parcel> parcels = new ArrayList<>();
         InputStream inputStream = file.getInputStream();
         CsvParserSettings setting = new CsvParserSettings();
@@ -74,10 +71,7 @@ public class TrackController {
         CsvParser parser = new CsvParser(setting);
         List<Record> parseAllRecords = parser.parseAllRecords(inputStream);
         parseAllRecords.forEach(record -> {
-            Parcel parcel = new Parcel();
-            parcel.setTrackingNumber(record.getString("tracking_number"));
-            parcel.setStatus(record.getString("status"));
-            parcels.add(parcel);
+            parcels.add(new Parcel(record.getString("tracking_number"), carrier.getId(), record.getString("status"))); //TODO integridad referencial, por ejemplo aqui me deja meterlos sin carrier y no debería poderse
         });
 
         if (findDuplicateTrackingNumbers(parcels)) {
@@ -96,13 +90,11 @@ public class TrackController {
     @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Deletion was successful"), @ApiResponse(responseCode = "412", description = "The carrier provided in not registered in the system"),})
     @DeleteMapping("/parcels/{carrierName}")
     public ResponseEntity<Void> deleteParcels(@PathVariable String carrierName) {
-        if (isCarrierInDatabase(carrierName)) {
-            return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
-        }
-        parcelRepository.deleteAll();
+        Carrier carrier = getCarrierFromDBOrElseAbort(carrierName);
+        List<Long> parcelIdsToRemove = parcelRepository.findAll().stream().filter(parcel -> parcel.getCarrierId() == carrier.getId()).map(Parcel::getId).collect(Collectors.toList());
+        parcelRepository.deleteAllById(parcelIdsToRemove);
         LOGGER.log(INFO, "Parcels have been deleted successfully");
         return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-
     }
 
     @CrossOrigin
@@ -110,14 +102,15 @@ public class TrackController {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Parcel found and data retrieved"), @ApiResponse(responseCode = "404", description = "Parcel not found")})
     @GetMapping("/parcels/{trackingNumber}")
     public ResponseEntity<Parcel> getParcelInfo(@PathVariable String trackingNumber) {
-
         List<Parcel> parcels = parcelRepository.findAll().stream().filter(parcelFound -> Objects.equals(parcelFound.getTrackingNumber(), trackingNumber)).collect(Collectors.toList());
         return parcels.size() == 1 ? new ResponseEntity<>(parcels.get(0), HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-
     }
 
-    private boolean isCarrierInDatabase(String carrierName) {
-        return carrierRepository.findAll().stream().anyMatch(aCarrier -> Objects.equals(aCarrier.getName(), carrierName));
+    private Carrier getCarrierFromDBOrElseAbort(String carrierName) {
+        return carrierRepository.findAll().stream()
+                .filter(aCarrier -> Objects.equals(aCarrier.getName(), carrierName))
+                .findAny()
+                .orElseThrow(CarrierNotFoundException::new);
     }
 
     private boolean findDuplicateTrackingNumbers(List<Parcel> inputParcels) {

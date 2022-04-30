@@ -37,4 +37,4 @@ jobs:
 
       - name: Run integration tests
         working-directory: ./tests
-        run: cd tests && newman run postman_collection.json
+        run: newman run postman_collection.json

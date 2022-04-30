@@ -28,21 +28,28 @@ class DatabaseInitialLoad implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (carrierRepository.findAll().isEmpty()) {
-            LOGGER.log(INFO, "Filling database with carriers...");
+        LOGGER.log(INFO, "Preparing database with initial data...");
+        loadInitialCarriers();
+        //loadInitialParcel();
+        LOGGER.log(INFO, "Database prepared");
+    }
 
-            List<Carrier> initialCarriers = List.of(
-                    new Carrier("seur", "test"),
-                    new Carrier("mrw", "test"),
-                    new Carrier("correos", "test")
-            );
+//    private void loadInitialParcel() {
+//        Parcel initialParcel = new Parcel("SEUR1234XYZ", 1, "En tránsito");
+//        if (!parcelRepository.findAll().contains(initialParcel)) {
+//            parcelRepository.save(initialParcel);
+//        }
+//    }
 
+    private void loadInitialCarriers() {
+        List<Carrier> initialCarriers = List.of(
+                new Carrier("seur", "test"),
+                new Carrier("mrw", "test"),
+                new Carrier("correos", "test")
+        );
+
+        if (!carrierRepository.findAll().containsAll(initialCarriers)) {
             carrierRepository.saveAll(initialCarriers);
         }
-        if (parcelRepository.findAll().isEmpty()) {
-            LOGGER.log(INFO, "Filling database with parcels...");
-            parcelRepository.save(new Parcel("SEUR1234XYZ", 1, "En tránsito"));
-        }
-        LOGGER.log(INFO, "Database prepared");
     }
 }

@@ -6,7 +6,7 @@
 	},
 	"item": [
 		{
-			"name": "[OK] - Health Check",
+			"name": "should respond to the health check",
 			"event": [
 				{
 					"listen": "test",
@@ -37,7 +37,7 @@
 			"response": []
 		},
 		{
-			"name": "[KO] - Carrier not existing Delete Parcels",
+			"name": "should reject parcel deletion from non registered carrier",
 			"event": [
 				{
 					"listen": "test",
@@ -68,7 +68,7 @@
 			"response": []
 		},
 		{
-			"name": "[OK] - Delete Parcels",
+			"name": "should delete parcels from carrier",
 			"event": [
 				{
 					"listen": "test",
@@ -99,7 +99,7 @@
 			"response": []
 		},
 		{
-			"name": "[OK] - Load",
+			"name": "should upload parcels from csv",
 			"event": [
 				{
 					"listen": "test",
@@ -134,20 +134,51 @@
 					"path": [
 						"parcels",
 						"seur"
-					],
-					"query": [
-						{
-							"key": "file",
-							"value": null,
-							"disabled": true
-						}
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "[KO] - Load - Duplicate Tracking Numbers Among Inputs",
+			"name": "should provide info of parcel",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Body matches\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.trackingNumber).to.eql(\"SEUR1234XYZ\");",
+							"    pm.expect(jsonData.carrierId).to.eql(1);",
+							"    pm.expect(jsonData.status).to.eql(\"En tránsito\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/parcels/SEUR1234XYZ",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"parcels",
+						"SEUR1234XYZ"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "should reject load with duplicate parcels",
 			"event": [
 				{
 					"listen": "test",
@@ -188,7 +219,7 @@
 			"response": []
 		},
 		{
-			"name": "[KO] - Load - Carrier not existing",
+			"name": "should reject load from non registered carrier",
 			"event": [
 				{
 					"listen": "test",
@@ -229,7 +260,7 @@
 			"response": []
 		},
 		{
-			"name": "[KO] - Load - Status not existing",
+			"name": "should reject load with non exisiting statuses",
 			"event": [
 				{
 					"listen": "test",
@@ -270,7 +301,7 @@
 			"response": []
 		},
 		{
-			"name": "[KO] - Load - Duplicate Tracking Numbers With DB",
+			"name": "should reject load with parcels already in the system",
 			"event": [
 				{
 					"listen": "test",
@@ -311,45 +342,7 @@
 			"response": []
 		},
 		{
-			"name": "[OK] - Get my parcel",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"pm.test(\"Body matches\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.trackingNumber).to.eql(\"SEUR1234XYZ\");",
-							"    pm.expect(jsonData.carrierId).to.eql(1);",
-							"    pm.expect(jsonData.status).to.eql(\"En tránsito\");",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/parcels/SEUR1234XYZ",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"parcels",
-						"SEUR1234XYZ"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "[KO] - Get my parcel",
+			"name": "should reject to provide info of non existing parcel",
 			"event": [
 				{
 					"listen": "test",
@@ -380,7 +373,7 @@
 			"response": []
 		},
 		{
-			"name": "[OK] - Carrier Login",
+			"name": "should allow login with correct credentials",
 			"event": [
 				{
 					"listen": "test",
@@ -421,7 +414,7 @@
 			"response": []
 		},
 		{
-			"name": "[KO] - Carrier Login",
+			"name": "should reject login with wrong credentials",
 			"event": [
 				{
 					"listen": "test",

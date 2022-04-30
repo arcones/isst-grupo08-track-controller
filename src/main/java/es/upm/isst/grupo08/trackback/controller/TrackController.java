@@ -4,8 +4,8 @@ import com.univocity.parsers.common.record.Record;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import es.upm.isst.grupo08.trackback.controller.error.carrierNotFound.CarrierNotFoundException;
-import es.upm.isst.grupo08.trackback.controller.error.dataInconsistency.DataInconsistencyException;
 import es.upm.isst.grupo08.trackback.controller.error.duplicateParcelsInFile.DuplicateParcelsException;
+import es.upm.isst.grupo08.trackback.controller.error.parcelNotFound.ParcelNotFoundException;
 import es.upm.isst.grupo08.trackback.controller.error.wrongCredentials.WrongCredentialsException;
 import es.upm.isst.grupo08.trackback.controller.error.wrongStatuses.WrongStatusesException;
 import es.upm.isst.grupo08.trackback.model.Carrier;
@@ -97,12 +97,12 @@ public class TrackController {
     }
 
     private void checkParcelValidity(List<Parcel> parcels) {
-        if (parcels.size() != 1) throw new DataInconsistencyException();
+        if (parcels.size() == 0) throw new ParcelNotFoundException();
     }
 
     private void checkCredentialsCorrectness(String user, String password) {
         boolean correctCredentials = carrierRepository.findAll().stream().filter(carrier -> carrier.getName().equalsIgnoreCase(user) && Objects.equals(carrier.getPassword(), password)).map(anyCarrier -> Boolean.TRUE).findAny().orElse(Boolean.FALSE);
-        if(!correctCredentials) {
+        if (!correctCredentials) {
             LOGGER.log(WARNING, "Credentials are not correct");
             throw new WrongCredentialsException();
         }

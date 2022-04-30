@@ -99,7 +99,7 @@
 			"response": []
 		},
 		{
-			"name": "[OK] - Insert Parcels",
+			"name": "[OK] - Load",
 			"event": [
 				{
 					"listen": "test",
@@ -122,7 +122,7 @@
 						{
 							"key": "parcels",
 							"type": "file",
-							"src": "/home/towanda/Projects/Teleko/ISST/Grupo/isst-grupo08-track-view/fixtures/pruebaNueva.csv"
+							"src": "OK_load.csv"
 						}
 					]
 				},
@@ -147,7 +147,7 @@
 			"response": []
 		},
 		{
-			"name": "[KO] - Duplicate Tracking Numbers Among Inputs Insert Parcels",
+			"name": "[KO] - Load - Duplicate Tracking Numbers Among Inputs",
 			"event": [
 				{
 					"listen": "test",
@@ -165,13 +165,14 @@
 				"method": "POST",
 				"header": [],
 				"body": {
-					"mode": "raw",
-					"raw": "[\n    {\n        \"trackingNumber\": \"tr7891\",\n        \"status\": \"En tránsito\"\n    },\n    {\n        \"trackingNumber\": \"tr7891\",\n        \"status\": \"En tránsito\"\n    }\n]",
-					"options": {
-						"raw": {
-							"language": "json"
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "parcels",
+							"type": "file",
+							"src": "KO_duplicates_in_same_load.csv"
 						}
-					}
+					]
 				},
 				"url": {
 					"raw": "{{base_url}}/parcels/seur",
@@ -187,47 +188,7 @@
 			"response": []
 		},
 		{
-			"name": "[KO] - Duplicate Tracking Numbers With Database Insert Parcels Copy",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 409\", function () {",
-							"    pm.response.to.have.status(409);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "[\n    {\n        \"trackingNumber\": \"SEUR1234XYZ\",\n        \"status\": \"En tránsito\"\n    }\n]",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{base_url}}/parcels/seur",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"parcels",
-						"seur"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "[KO] - Carrier not existing Insert Parcels",
+			"name": "[KO] - Load - Carrier not existing",
 			"event": [
 				{
 					"listen": "test",
@@ -245,13 +206,14 @@
 				"method": "POST",
 				"header": [],
 				"body": {
-					"mode": "raw",
-					"raw": "[\n    {\n        \"trackingNumber\": \"test123\",\n        \"status\": \"En tránsito\"\n    }\n]",
-					"options": {
-						"raw": {
-							"language": "json"
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "parcels",
+							"type": "file",
+							"src": "OK_load.csv"
 						}
-					}
+					]
 				},
 				"url": {
 					"raw": "{{base_url}}/parcels/achinguaie",
@@ -267,7 +229,7 @@
 			"response": []
 		},
 		{
-			"name": "[KO] - Status not existing Insert Parcels",
+			"name": "[KO] - Load - Status not existing",
 			"event": [
 				{
 					"listen": "test",
@@ -285,13 +247,55 @@
 				"method": "POST",
 				"header": [],
 				"body": {
-					"mode": "raw",
-					"raw": "[\n    {\n        \"trackingNumber\": \"{{$guid}}\",\n        \"status\": \"No es un estado\"\n    }\n]",
-					"options": {
-						"raw": {
-							"language": "json"
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "parcels",
+							"type": "file",
+							"src": "KO_status_not_existing.csv"
 						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/parcels/seur",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"parcels",
+						"seur"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "[KO] - Load - Duplicate Tracking Numbers With DB",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 409\", function () {",
+							"    pm.response.to.have.status(409);",
+							"});"
+						],
+						"type": "text/javascript"
 					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "parcels",
+							"type": "file",
+							"src": "KO_duplicates_with_db.csv"
+						}
+					]
 				},
 				"url": {
 					"raw": "{{base_url}}/parcels/seur",
@@ -481,7 +485,7 @@
 	"variable": [
 		{
 			"key": "base_url",
-			"value": "http://localhost:8080",
+			"value": "https://isst-grupo08-track-controller.herokuapp.com",
 			"type": "string"
 		}
 	]

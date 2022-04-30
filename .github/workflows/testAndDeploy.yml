@@ -18,6 +18,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.4.2
 
+      - name: Ls
+        run: ls -lrta
+
       - name: Run unit tests
         run: ./mvnw surefire:test
 

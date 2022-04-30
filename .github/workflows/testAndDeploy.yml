@@ -37,4 +37,4 @@ jobs:
 
       - name: Run integration tests
         working-directory: ./tests
-        run: newman run postman_collection.json
+        run: newman run Trackermaster.postman_collection.json

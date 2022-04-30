@@ -64,7 +64,12 @@ public class TrackController {
 
     @CrossOrigin
     @Operation(summary = "Bulk upload of parcels for carriers")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Upload was successful"), @ApiResponse(responseCode = "412", description = "The carrier provided in not registered in the system"), @ApiResponse(responseCode = "406", description = "There is an error in any of the status provided for the parcels"), @ApiResponse(responseCode = "409", description = "There are duplicates within the tracking numbers provided and the system"),})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Upload was successful"),
+            @ApiResponse(responseCode = "412", description = "The carrier provided in not registered in the system"),
+            @ApiResponse(responseCode = "406", description = "There is an error in any of the status provided for the parcels"),
+            @ApiResponse(responseCode = "409", description = "There are duplicates within the tracking numbers provided and the system")
+    })
     @PostMapping("/parcels/{carrierName}")
     public ResponseEntity<Void> loadParcels(@PathVariable String carrierName, @RequestParam("parcels") MultipartFile parcelsCSV) throws IOException {
         List<Parcel> parcels = parseParcelsCSV(carrierName, parcelsCSV);
@@ -91,7 +96,10 @@ public class TrackController {
 
     @CrossOrigin
     @Operation(summary = "Get parcel information given its tracking number")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Parcel found and data retrieved"), @ApiResponse(responseCode = "404", description = "Parcel not found")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Parcel found and data retrieved"),
+            @ApiResponse(responseCode = "404", description = "Parcel not found")
+    })
     @GetMapping("/parcels/{trackingNumber}")
     public ResponseEntity<Parcel> getParcelInfo(@PathVariable String trackingNumber) {
         List<Parcel> parcels = parcelRepository.findAll().stream().filter(parcelFound -> Objects.equals(parcelFound.getTrackingNumber(), trackingNumber)).collect(Collectors.toList());

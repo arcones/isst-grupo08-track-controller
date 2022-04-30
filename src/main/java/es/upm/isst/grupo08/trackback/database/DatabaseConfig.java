@@ -1,4 +1,4 @@
-package es.upm.isst.grupo08.trackback.util;
+package es.upm.isst.grupo08.trackback.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

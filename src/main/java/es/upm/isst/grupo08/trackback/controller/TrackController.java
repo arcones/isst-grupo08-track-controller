@@ -3,7 +3,11 @@ package es.upm.isst.grupo08.trackback.controller;
 import com.univocity.parsers.common.record.Record;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
-import es.upm.isst.grupo08.trackback.controller.error.CarrierNotFoundException;
+import es.upm.isst.grupo08.trackback.controller.error.carrierNotFound.CarrierNotFoundException;
+import es.upm.isst.grupo08.trackback.controller.error.dataInconsistency.DataInconsistencyException;
+import es.upm.isst.grupo08.trackback.controller.error.duplicateParcelsInFile.DuplicateParcelsException;
+import es.upm.isst.grupo08.trackback.controller.error.wrongCredentials.WrongCredentialsException;
+import es.upm.isst.grupo08.trackback.controller.error.wrongStatuses.WrongStatusesException;
 import es.upm.isst.grupo08.trackback.model.Carrier;
 import es.upm.isst.grupo08.trackback.model.Parcel;
 import es.upm.isst.grupo08.trackback.repository.CarrierRepository;
@@ -18,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -52,37 +55,23 @@ public class TrackController {
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Credentials are correct"), @ApiResponse(responseCode = "404", description = "Credentials doesn't match with any user in the database")})
     @GetMapping("/carriers")
     public ResponseEntity<Void> login(@RequestHeader("User") String user, @RequestHeader("Password") String password) {
-        boolean correctCredentials = carrierRepository.findAll().stream().filter(carrier -> carrier.getName().equalsIgnoreCase(user) && Objects.equals(carrier.getPassword(), password)).map(anyCarrier -> Boolean.TRUE).findAny().orElse(Boolean.FALSE);
-        return correctCredentials ? new ResponseEntity<>(null, HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        checkCredentialsCorrectness(user, password);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     @CrossOrigin
     @Operation(summary = "Bulk upload of parcels for carriers")
     @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Upload was successful"), @ApiResponse(responseCode = "412", description = "The carrier provided in not registered in the system"), @ApiResponse(responseCode = "406", description = "There is an error in any of the status provided for the parcels"), @ApiResponse(responseCode = "409", description = "There are duplicates within the tracking numbers provided and the system"),})
     @PostMapping("/parcels/{carrierName}")
-    public ResponseEntity<Void> loadParcels(@PathVariable String carrierName, @RequestParam("parcels") MultipartFile file) throws IOException {
-        Carrier carrier = getCarrierFromDBOrElseAbort(carrierName);
+    public ResponseEntity<Void> loadParcels(@PathVariable String carrierName, @RequestParam("parcels") MultipartFile parcelsCSV) throws IOException {
+        List<Parcel> parcels = parseParcelsCSV(carrierName, parcelsCSV);
 
-        //TODO sacar el parseo de csv a un método privado
-        List<Parcel> parcels = new ArrayList<>();
-        InputStream inputStream = file.getInputStream();
-        CsvParserSettings setting = new CsvParserSettings();
-        setting.setHeaderExtractionEnabled(true);
-        CsvParser parser = new CsvParser(setting);
-        List<Record> parseAllRecords = parser.parseAllRecords(inputStream);
-        parseAllRecords.forEach(record -> {
-            parcels.add(new Parcel(record.getString("tracking_number"), carrier.getId(), record.getString("status"))); //TODO integridad referencial, por ejemplo aqui me deja meterlos sin carrier y no debería poderse
-        });
+        checkForDuplicateParcels(parcels);
+        checkForWrongStatuses(parcels);
 
-        if (findDuplicateTrackingNumbers(parcels)) {
-            return new ResponseEntity<>(null, HttpStatus.CONFLICT);
-        } else if (findIncorrectStatuses(parcels)) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
-        } else {
-            parcelRepository.saveAll(parcels);
-            LOGGER.log(INFO, "Parcels have been loaded successfully");
-            return new ResponseEntity<>(null, HttpStatus.OK);
-        }
+        parcelRepository.saveAll(parcels);
+        LOGGER.log(INFO, "Parcels have been loaded successfully");
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     @CrossOrigin
@@ -90,7 +79,7 @@ public class TrackController {
     @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Deletion was successful"), @ApiResponse(responseCode = "412", description = "The carrier provided in not registered in the system"),})
     @DeleteMapping("/parcels/{carrierName}")
     public ResponseEntity<Void> deleteParcels(@PathVariable String carrierName) {
-        Carrier carrier = getCarrierFromDBOrElseAbort(carrierName);
+        Carrier carrier = checkForCarrierExistence(carrierName);
         List<Long> parcelIdsToRemove = parcelRepository.findAll().stream().filter(parcel -> parcel.getCarrierId() == carrier.getId()).map(Parcel::getId).collect(Collectors.toList());
         parcelRepository.deleteAllById(parcelIdsToRemove);
         LOGGER.log(INFO, "Parcels have been deleted successfully");
@@ -103,18 +92,53 @@ public class TrackController {
     @GetMapping("/parcels/{trackingNumber}")
     public ResponseEntity<Parcel> getParcelInfo(@PathVariable String trackingNumber) {
         List<Parcel> parcels = parcelRepository.findAll().stream().filter(parcelFound -> Objects.equals(parcelFound.getTrackingNumber(), trackingNumber)).collect(Collectors.toList());
-        return parcels.size() == 1 ? new ResponseEntity<>(parcels.get(0), HttpStatus.OK) : new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        checkParcelValidity(parcels);
+        return new ResponseEntity<>(parcels.get(0), HttpStatus.OK);
     }
 
-    private Carrier getCarrierFromDBOrElseAbort(String carrierName) {
+    private void checkParcelValidity(List<Parcel> parcels) {
+        if (parcels.size() != 1) throw new DataInconsistencyException();
+    }
+
+    private void checkCredentialsCorrectness(String user, String password) {
+        boolean correctCredentials = carrierRepository.findAll().stream().filter(carrier -> carrier.getName().equalsIgnoreCase(user) && Objects.equals(carrier.getPassword(), password)).map(anyCarrier -> Boolean.TRUE).findAny().orElse(Boolean.FALSE);
+        if(!correctCredentials) {
+            LOGGER.log(WARNING, "Credentials are not correct");
+            throw new WrongCredentialsException();
+        }
+    }
+
+    private List<Parcel> parseParcelsCSV(String carrierName, MultipartFile file) throws IOException {
+        Carrier carrier = checkForCarrierExistence(carrierName);
+
+        CsvParserSettings setting = new CsvParserSettings();
+        setting.setHeaderExtractionEnabled(true);
+        CsvParser parser = new CsvParser(setting);
+
+        LOGGER.log(INFO, "Parsing CSV file with parcels...");
+
+        List<Record> parseAllRecords = parser.parseAllRecords(file.getInputStream());
+
+        List<Parcel> parcels = new ArrayList<>();
+        parseAllRecords.forEach(record -> {
+            parcels.add(new Parcel(record.getString("tracking_number"), carrier.getId(), record.getString("status"))); //TODO integridad referencial, por ejemplo aqui me deja meterlos sin carrier y no debería poderse
+        });
+
+        LOGGER.log(INFO, "The CSV file has been parsed successfully");
+
+        return parcels;
+    }
+
+    private Carrier checkForCarrierExistence(String carrierName) {
         return carrierRepository.findAll().stream()
                 .filter(aCarrier -> Objects.equals(aCarrier.getName(), carrierName))
                 .findAny()
                 .orElseThrow(CarrierNotFoundException::new);
     }
 
-    private boolean findDuplicateTrackingNumbers(List<Parcel> inputParcels) {
-        return findDuplicateTrackingNumbersAmongInput(inputParcels) || findDuplicateTrackingNumbersWithCurrents(inputParcels);
+    private void checkForDuplicateParcels(List<Parcel> inputParcels) {
+        if (findDuplicateTrackingNumbersAmongInput(inputParcels) || findDuplicateTrackingNumbersWithCurrents(inputParcels))
+            throw new DuplicateParcelsException();
     }
 
     private boolean findDuplicateTrackingNumbersWithCurrents(List<Parcel> inputParcels) {
@@ -141,13 +165,14 @@ public class TrackController {
         return duplicateTrackingNumbersAmongInputs;
     }
 
-    private boolean findIncorrectStatuses(List<Parcel> inputParcels) {
+    private void checkForWrongStatuses(List<Parcel> inputParcels) {
         List<String> correctStatuses = List.of("En tránsito", "Entregado", "Error en la entrega");
         boolean incorrectStatus = inputParcels.stream().map(Parcel::getStatus).filter(status -> !correctStatuses.contains(status)).map(status -> Boolean.TRUE).findAny().orElse(Boolean.FALSE);
 
-        if (incorrectStatus) LOGGER.log(WARNING, "There are parcels with an incorrect status");
-
-        return incorrectStatus;
+        if (incorrectStatus) {
+            LOGGER.log(WARNING, "There are parcels with an incorrect status");
+            throw new WrongStatusesException();
+        }
     }
 
 }

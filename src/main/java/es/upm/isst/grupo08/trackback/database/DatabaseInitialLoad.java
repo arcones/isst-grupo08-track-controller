@@ -1,4 +1,4 @@
-package es.upm.isst.grupo08.trackback.util;
+package es.upm.isst.grupo08.trackback.database;
 
 import es.upm.isst.grupo08.trackback.controller.TrackController;
 import es.upm.isst.grupo08.trackback.model.Carrier;
@@ -14,14 +14,14 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.INFO;
 
 @Component
-class PrepareDatabase implements CommandLineRunner {
+class DatabaseInitialLoad implements CommandLineRunner {
 
     public static final Logger LOGGER = Logger.getLogger(TrackController.class.getName());
 
     private final CarrierRepository carrierRepository;
     private final ParcelRepository parcelRepository;
 
-    PrepareDatabase(CarrierRepository carrierRepository, ParcelRepository parcelRepository) {
+    DatabaseInitialLoad(CarrierRepository carrierRepository, ParcelRepository parcelRepository) {
         this.carrierRepository = carrierRepository;
         this.parcelRepository = parcelRepository;
     }
@@ -45,7 +45,4 @@ class PrepareDatabase implements CommandLineRunner {
         }
         LOGGER.log(INFO, "Database prepared");
     }
-
-
-
 }

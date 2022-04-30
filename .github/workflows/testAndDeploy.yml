@@ -18,7 +18,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.4.2
 
-      # Add here unit tests
+      - name: Run unit tests
+        run: ./mvnw clean install test
 
       - name: Deploy to heroku
         uses: AkhileshNS/heroku-deploy@v3.12.12
@@ -36,5 +37,5 @@ jobs:
         run: npm install -g newman
 
       - name: Run integration tests
-        working-directory: ./tests
+        working-directory: ./integrationTests
         run: newman run Trackermaster.postman_collection.json

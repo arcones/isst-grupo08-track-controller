@@ -18,11 +18,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.4.2
 
-      - name: Ls
-        run: ls -lrta
+      - name: show test source
+        run: cat src/test/java/es/upm/isst/grupo08/trackback/controller/TrackControllerTest.java
 
       - name: Run unit tests
-        run: ./mvnw surefire:test
+        run: ./mvnw test
 
       - name: Deploy to heroku
         uses: AkhileshNS/heroku-deploy@v3.12.12

@@ -30,16 +30,8 @@ class DatabaseInitialLoad implements CommandLineRunner {
     public void run(String... args) {
         LOGGER.log(INFO, "Preparing database with initial data...");
         loadInitialCarriers();
-        //loadInitialParcel();
         LOGGER.log(INFO, "Database prepared");
     }
-
-//    private void loadInitialParcel() {
-//        Parcel initialParcel = new Parcel("SEUR1234XYZ", 1, "En tránsito");
-//        if (!parcelRepository.findAll().contains(initialParcel)) {
-//            parcelRepository.save(initialParcel);
-//        }
-//    }
 
     private void loadInitialCarriers() {
         List<Carrier> initialCarriers = List.of(

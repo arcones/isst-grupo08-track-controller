@@ -52,7 +52,10 @@ public class TrackController {
 
     @CrossOrigin
     @Operation(summary = "Login for carriers")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Credentials are correct"), @ApiResponse(responseCode = "404", description = "Credentials doesn't match with any user in the database")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Credentials are correct"),
+            @ApiResponse(responseCode = "404", description = "Credentials doesn't match with any user in the database")
+    })
     @GetMapping("/carriers")
     public ResponseEntity<Void> login(@RequestHeader("User") String user, @RequestHeader("Password") String password) {
         checkCredentialsCorrectness(user, password);

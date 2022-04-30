@@ -122,7 +122,7 @@
 						{
 							"key": "parcels",
 							"type": "file",
-							"src": "OK_load.csv"
+							"src": "./OK_load.csv"
 						}
 					]
 				},
@@ -170,7 +170,7 @@
 						{
 							"key": "parcels",
 							"type": "file",
-							"src": "KO_duplicates_in_same_load.csv"
+							"src": "./KO_duplicates_in_same_load.csv"
 						}
 					]
 				},
@@ -211,7 +211,7 @@
 						{
 							"key": "parcels",
 							"type": "file",
-							"src": "OK_load.csv"
+							"src": "./OK_load.csv"
 						}
 					]
 				},
@@ -252,7 +252,7 @@
 						{
 							"key": "parcels",
 							"type": "file",
-							"src": "KO_status_not_existing.csv"
+							"src": "./KO_status_not_existing.csv"
 						}
 					]
 				},
@@ -293,7 +293,7 @@
 						{
 							"key": "parcels",
 							"type": "file",
-							"src": "KO_duplicates_with_db.csv"
+							"src": "./KO_duplicates_with_db.csv"
 						}
 					]
 				},

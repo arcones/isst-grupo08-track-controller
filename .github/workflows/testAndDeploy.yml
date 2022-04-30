@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v2.4.2
 
       - name: Run unit tests
-        run: ./mvnw clean install test
+        run: ./mvnw test
 
       - name: Deploy to heroku
         uses: AkhileshNS/heroku-deploy@v3.12.12

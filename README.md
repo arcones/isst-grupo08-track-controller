@@ -1,3 +1,5 @@
+[![Test and Deploy](https://github.com/arcones/isst-grupo08-track-controller/actions/workflows/testAndDeploy.yml/badge.svg?branch=main)](https://github.com/arcones/isst-grupo08-track-controller/actions/workflows/testAndDeploy.yml)
+
 # isst-grupo08-track-controller :articulated_lorry:
 
 Set the `JDBC_DATABASE_URL` environment variable with the full URL of the postgres database.

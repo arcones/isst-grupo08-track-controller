@@ -1,8 +1,8 @@
 package es.upm.isst.grupo08.trackback.controller;
 
 import es.upm.isst.grupo08.trackback.model.Parcel;
-import es.upm.isst.grupo08.trackback.repository.UserRepository;
 import es.upm.isst.grupo08.trackback.repository.ParcelRepository;
+import es.upm.isst.grupo08.trackback.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import static es.upm.isst.grupo08.trackback.model.Role.CARRIER;
+import static es.upm.isst.grupo08.trackback.model.Role.RECIPIENT;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.hamcrest.core.Is.is;
@@ -61,14 +63,16 @@ class TrackControllerTest {
     }
 
     @Test
-    void shouldExistInitialCarriers() {
-        assertEquals(3, userRepository.findAll().size());
+    void shouldExistInitialCarriersAndRecipient() {
+        assertEquals(4, userRepository.findAll().size());
+        assertEquals(1, userRepository.findAll().stream().filter(user -> user.getRole() == RECIPIENT).count());
+        assertEquals(3, userRepository.findAll().stream().filter(user -> user.getRole() == CARRIER).count());
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"seur", "mrw", "correos"})
+    @ValueSource(strings = {"seur", "mrw", "correos", "pepa"})
     void shouldAuthenticateWhenCredentialsAreCorrect(String carrierName) throws Exception {
-        mockMvc.perform(get("/carriers")
+        mockMvc.perform(get("/login")
                         .header("User", carrierName)
                         .header("Password", "test"))
                 .andExpect(status().isOk());

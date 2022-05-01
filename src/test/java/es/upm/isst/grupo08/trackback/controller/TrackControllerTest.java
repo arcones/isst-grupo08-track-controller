@@ -195,7 +195,8 @@ class TrackControllerTest {
                         content().contentType(MediaType.APPLICATION_JSON),
                         jsonPath("$.trackingNumber", is("cc46218817846sm")),
                         jsonPath("$.carrierId", is(carrierId)),
-                        jsonPath("$.status", is("Entregado"))
+                        jsonPath("$.status", is("Entregado")),
+                        jsonPath("$.recipient", is("paca"))
                 );
     }
 

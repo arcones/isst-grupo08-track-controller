@@ -155,6 +155,7 @@
 							"    pm.expect(jsonData.trackingNumber).to.eql(\"SEUR1234XYZ\");",
 							"    pm.expect(jsonData.carrierId).to.eql(1);",
 							"    pm.expect(jsonData.status).to.eql(\"En tránsito\");",
+							"    pm.expect(jsonData.recipient).to.eql(\"santi\");",
 							"});"
 						],
 						"type": "text/javascript"

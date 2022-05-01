@@ -3,8 +3,8 @@ package es.upm.isst.grupo08.trackback.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name="CARRIER")
-public class Carrier {
+@Table(name="APPLICATION_USER")
+public class ApplicationUser {
 
     @Id
     @Column(name="ID")
@@ -17,12 +17,16 @@ public class Carrier {
     @Column(name="PASSWORD", nullable = false)
     private String password;
 
-    public Carrier() {
+    @Column(name = "ROLE")
+    private Role role;
+
+    public ApplicationUser() {
     }
 
-    public Carrier(String name, String password) {
+    public ApplicationUser(String name, String password, Role role) {
         this.name = name;
         this.password = password;
+        this.role = role;
     }
 
     public long getId() {
@@ -43,5 +47,13 @@ public class Carrier {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 }

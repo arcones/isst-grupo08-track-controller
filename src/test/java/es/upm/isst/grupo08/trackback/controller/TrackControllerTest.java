@@ -1,7 +1,7 @@
 package es.upm.isst.grupo08.trackback.controller;
 
 import es.upm.isst.grupo08.trackback.model.Parcel;
-import es.upm.isst.grupo08.trackback.repository.CarrierRepository;
+import es.upm.isst.grupo08.trackback.repository.UserRepository;
 import es.upm.isst.grupo08.trackback.repository.ParcelRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +38,7 @@ class TrackControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private CarrierRepository carrierRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private ParcelRepository parcelRepository;
@@ -62,7 +62,7 @@ class TrackControllerTest {
 
     @Test
     void shouldExistInitialCarriers() {
-        assertEquals(3, carrierRepository.findAll().size());
+        assertEquals(3, userRepository.findAll().size());
     }
 
     @ParameterizedTest
@@ -97,7 +97,7 @@ class TrackControllerTest {
                 .andExpect(status().isOk());
 
         List<Parcel> parcelList = parcelRepository.findAll();
-        long carrierId = carrierRepository.findAll().stream()
+        long carrierId = userRepository.findAll().stream()
                 .filter(carrier -> Objects.equals(carrier.getName(), carrierName))
                 .findAny().get().getId();
 
@@ -177,7 +177,7 @@ class TrackControllerTest {
                 parcelsFile.getInputStream());
 
         String carrierName = "correos";
-        int carrierId = (int) carrierRepository.findAll().stream()
+        int carrierId = (int) userRepository.findAll().stream()
                 .filter(carrier -> Objects.equals(carrier.getName(), carrierName))
                 .findAny().get().getId();
 

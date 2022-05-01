@@ -8,9 +8,9 @@ import es.upm.isst.grupo08.trackback.controller.error.duplicateParcelsInFile.Dup
 import es.upm.isst.grupo08.trackback.controller.error.parcelNotFound.ParcelNotFoundException;
 import es.upm.isst.grupo08.trackback.controller.error.wrongCredentials.WrongCredentialsException;
 import es.upm.isst.grupo08.trackback.controller.error.wrongStatuses.WrongStatusesException;
-import es.upm.isst.grupo08.trackback.model.Carrier;
+import es.upm.isst.grupo08.trackback.model.ApplicationUser;
 import es.upm.isst.grupo08.trackback.model.Parcel;
-import es.upm.isst.grupo08.trackback.repository.CarrierRepository;
+import es.upm.isst.grupo08.trackback.repository.UserRepository;
 import es.upm.isst.grupo08.trackback.repository.ParcelRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -35,11 +35,11 @@ public class TrackController {
 
     public static final Logger LOGGER = Logger.getLogger(TrackController.class.getName());
 
-    private final CarrierRepository carrierRepository;
+    private final UserRepository userRepository;
     private final ParcelRepository parcelRepository;
 
-    public TrackController(CarrierRepository carrierRepository, ParcelRepository parcelRepository) {
-        this.carrierRepository = carrierRepository;
+    public TrackController(UserRepository userRepository, ParcelRepository parcelRepository) {
+        this.userRepository = userRepository;
         this.parcelRepository = parcelRepository;
     }
 
@@ -51,12 +51,12 @@ public class TrackController {
     }
 
     @CrossOrigin
-    @Operation(summary = "Login for carriers")
+    @Operation(summary = "Login for users")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Credentials are correct"),
             @ApiResponse(responseCode = "404", description = "Credentials doesn't match with any user in the database")
     })
-    @GetMapping("/carriers")
+    @GetMapping("/login")
     public ResponseEntity<Void> login(@RequestHeader("User") String user, @RequestHeader("Password") String password) {
         checkCredentialsCorrectness(user, password);
         return new ResponseEntity<>(null, HttpStatus.OK);
@@ -87,8 +87,8 @@ public class TrackController {
     @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Deletion was successful"), @ApiResponse(responseCode = "412", description = "The carrier provided in not registered in the system"),})
     @DeleteMapping("/parcels/{carrierName}")
     public ResponseEntity<Void> deleteParcels(@PathVariable String carrierName) {
-        Carrier carrier = checkForCarrierExistence(carrierName);
-        List<Long> parcelIdsToRemove = parcelRepository.findAll().stream().filter(parcel -> parcel.getCarrierId() == carrier.getId()).map(Parcel::getId).collect(Collectors.toList());
+        ApplicationUser applicationUser = checkForCarrierExistence(carrierName);
+        List<Long> parcelIdsToRemove = parcelRepository.findAll().stream().filter(parcel -> parcel.getCarrierId() == applicationUser.getId()).map(Parcel::getId).collect(Collectors.toList());
         parcelRepository.deleteAllById(parcelIdsToRemove);
         LOGGER.log(INFO, "Parcels have been deleted successfully");
         return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
@@ -112,7 +112,7 @@ public class TrackController {
     }
 
     private void checkCredentialsCorrectness(String user, String password) {
-        boolean correctCredentials = carrierRepository.findAll().stream().filter(carrier -> carrier.getName().equalsIgnoreCase(user) && Objects.equals(carrier.getPassword(), password)).map(anyCarrier -> Boolean.TRUE).findAny().orElse(Boolean.FALSE);
+        boolean correctCredentials = userRepository.findAll().stream().filter(carrier -> carrier.getName().equalsIgnoreCase(user) && Objects.equals(carrier.getPassword(), password)).map(anyApplicationUser -> Boolean.TRUE).findAny().orElse(Boolean.FALSE);
         if (!correctCredentials) {
             LOGGER.log(WARNING, "Credentials are not correct");
             throw new WrongCredentialsException();
@@ -120,7 +120,7 @@ public class TrackController {
     }
 
     private List<Parcel> parseParcelsCSV(String carrierName, MultipartFile file) throws IOException {
-        Carrier carrier = checkForCarrierExistence(carrierName);
+        ApplicationUser applicationUser = checkForCarrierExistence(carrierName);
 
         CsvParserSettings setting = new CsvParserSettings();
         setting.setHeaderExtractionEnabled(true);
@@ -132,7 +132,7 @@ public class TrackController {
 
         List<Parcel> parcels = new ArrayList<>();
         parseAllRecords.forEach(record -> {
-            parcels.add(new Parcel(record.getString("tracking_number"), carrier.getId(), record.getString("status"))); //TODO integridad referencial, por ejemplo aqui me deja meterlos sin carrier y no debería poderse
+            parcels.add(new Parcel(record.getString("tracking_number"), applicationUser.getId(), record.getString("status"))); //TODO integridad referencial, por ejemplo aqui me deja meterlos sin carrier y no debería poderse
         });
 
         LOGGER.log(INFO, "The CSV file has been parsed successfully");
@@ -140,9 +140,9 @@ public class TrackController {
         return parcels;
     }
 
-    private Carrier checkForCarrierExistence(String carrierName) {
-        return carrierRepository.findAll().stream()
-                .filter(aCarrier -> Objects.equals(aCarrier.getName(), carrierName))
+    private ApplicationUser checkForCarrierExistence(String carrierName) {
+        return userRepository.findAll().stream()
+                .filter(aApplicationUser -> Objects.equals(aApplicationUser.getName(), carrierName))
                 .findAny()
                 .orElseThrow(CarrierNotFoundException::new);
     }

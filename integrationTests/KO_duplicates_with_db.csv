@@ -1,2 +1,2 @@
-tracking_number,status
-SEUR1234XYZ,En tránsito
+tracking_number,status,recipient
+SEUR1234XYZ,En tránsito,pepe

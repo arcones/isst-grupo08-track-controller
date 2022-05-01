@@ -1,11 +1,11 @@
-tracking_number,status
-xxxs876iii489732,En tránsito
-kyyyyjl48s92,Error en la entrega
-8755yyyy5sm,Entregado
-45648eee76489732,En tránsito
-kjl455rrr55,Error en la entrega
-87fghhrrtwerj,Entregado
-xx654ttrre76489732,En tránsito
-kjl990gfgdfgf92,Error en la entrega
-87terter005sm,Entregado
-SEUR1234XYZ,En tránsito
+tracking_number,status,recipient
+xxxs876iii489732,En tránsito,clander
+kyyyyjl48s92,Error en la entrega,perry
+8755yyyy5sm,Entregado,paca
+45648eee76489732,En tránsito,pepe
+kjl455rrr55,Error en la entrega,pepa
+87fghhrrtwerj,Entregado,lauria
+xx654ttrre76489732,En tránsito,macu
+kjl990gfgdfgf92,Error en la entrega,rolo
+87terter005sm,Entregado,dueñas
+SEUR1234XYZ,En tránsito,santi

@@ -132,7 +132,12 @@ public class TrackController {
 
         List<Parcel> parcels = new ArrayList<>();
         parseAllRecords.forEach(record -> {
-            parcels.add(new Parcel(record.getString("tracking_number"), applicationUser.getId(), record.getString("status"))); //TODO integridad referencial, por ejemplo aqui me deja meterlos sin carrier y no debería poderse
+            parcels.add(new Parcel(
+                    record.getString("tracking_number"),
+                    applicationUser.getId(),
+                    record.getString("status"),
+                    record.getString("recipient")
+            )); //TODO integridad referencial, por ejemplo aqui me deja meterlos sin carrier y no debería poderse. O sin user (que deberia ir por ID)
         });
 
         LOGGER.log(INFO, "The CSV file has been parsed successfully");

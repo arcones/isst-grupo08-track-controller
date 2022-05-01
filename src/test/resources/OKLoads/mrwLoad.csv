@@ -1,11 +1,11 @@
-tracking_number,status
-ashdhdas,En tránsito
-sfiufgysyg,Error en la entrega
-894273ukjhfs,Entregado
-4783jfsdlkjf,En tránsito
-jfdskj92jd,Error en la entrega
-djsd0smk,Entregado
-987eskdfcslao,En tránsito
-jds89yfsa8ama,Error en la entrega
-dshfisdy78al,Entregado
-jsdjdsaiadyasjk,En tránsito
+tracking_number,status,recipient
+ashdhdas,En tránsito,pepa
+sfiufgysyg,Error en la entrega,pepa
+894273ukjhfs,Entregado,paca
+4783jfsdlkjf,En tránsito,perry
+jfdskj92jd,Error en la entrega,macu
+djsd0smk,Entregado,rolo
+987eskdfcslao,En tránsito,dueñas
+jds89yfsa8ama,Error en la entrega,santi
+dshfisdy78al,Entregado,lauria
+jsdjdsaiadyasjk,En tránsito,jander

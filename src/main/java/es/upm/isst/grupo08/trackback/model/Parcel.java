@@ -20,13 +20,17 @@ public class Parcel {
     @Column(name = "STATUS", nullable = false)
     private String status;
 
+    @Column(name = "RECIPIENT", nullable = false)
+    private String recipient;
+
     public Parcel() {
     }
 
-    public Parcel(String trackingNumber, long carrierId, String status) {
+    public Parcel(String trackingNumber, long carrierId, String status, String recipient) {
         this.trackingNumber = trackingNumber;
         this.carrierId = carrierId;
         this.status = status;
+        this.recipient = recipient;
     }
 
     public long getId() {
@@ -56,4 +60,8 @@ public class Parcel {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public String getRecipient(){ return recipient; }
+
+    public void setRecipient(){ this.recipient = recipient; }
 }

@@ -373,7 +373,7 @@
 			"response": []
 		},
 		{
-			"name": "should allow login with correct credentials",
+			"name": "should allow login for carrier with correct credentials",
 			"event": [
 				{
 					"listen": "test",
@@ -402,12 +402,53 @@
 					}
 				],
 				"url": {
-					"raw": "{{base_url}}/carriers",
+					"raw": "{{base_url}}/login",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
-						"carriers"
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "should allow login for recipient with correct credentials",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "User",
+						"value": "pepa",
+						"type": "text"
+					},
+					{
+						"key": "Password",
+						"value": "test",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"login"
 					]
 				}
 			},
@@ -438,7 +479,7 @@
 					},
 					{
 						"key": "Password",
-						"value": "wrongPassword",
+						"value": "{{$randomPassword}}",
 						"type": "text"
 					}
 				],

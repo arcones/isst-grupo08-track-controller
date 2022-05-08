@@ -21,7 +21,7 @@ class DatabaseInitialLoad implements CommandLineRunner {
 
     private final UserRepository userRepository;
 
-    DatabaseInitialLoad(UserRepository userRepository, ParcelRepository parcelRepository) {
+    DatabaseInitialLoad(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 

@@ -3,7 +3,7 @@ package es.upm.isst.grupo08.trackback.controller;
 import com.univocity.parsers.common.record.Record;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
-import es.upm.isst.grupo08.trackback.controller.error.carrierNotFound.CarrierNotFoundException;
+import es.upm.isst.grupo08.trackback.controller.error.carrierNotFound.ApplicationUserNotFoundException;
 import es.upm.isst.grupo08.trackback.controller.error.duplicateParcelsInFile.DuplicateParcelsException;
 import es.upm.isst.grupo08.trackback.controller.error.parcelNotFound.ParcelNotFoundException;
 import es.upm.isst.grupo08.trackback.controller.error.wrongCredentials.WrongCredentialsException;
@@ -24,10 +24,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.stream.Collectors.*;
 
 @RestController
 @Tag(name = "Track", description = "The Trackermaster API")
@@ -87,32 +87,37 @@ public class TrackController {
     @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Deletion was successful"), @ApiResponse(responseCode = "412", description = "The carrier provided in not registered in the system"),})
     @DeleteMapping("/parcels/{carrierName}")
     public ResponseEntity<Void> deleteParcels(@PathVariable String carrierName) {
-        ApplicationUser applicationUser = checkForCarrierExistence(carrierName);
-        List<Long> parcelIdsToRemove = parcelRepository.findAll().stream().filter(parcel -> parcel.getCarrierId() == applicationUser.getId()).map(Parcel::getId).collect(Collectors.toList());
+        ApplicationUser applicationUser = checkForApplicationUserExistenceByName(carrierName);
+        List<Long> parcelIdsToRemove = parcelRepository.findAll().stream().filter(parcel -> parcel.getCarrierId() == applicationUser.getId()).map(Parcel::getId).collect(toList());
         parcelRepository.deleteAllById(parcelIdsToRemove);
         LOGGER.log(INFO, "Parcels have been deleted successfully");
         return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
 
     @CrossOrigin
-    @Operation(summary = "Get parcel information given its tracking number")
+    @Operation(summary = "Get parcels given a recipient")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Parcel found and data retrieved"),
-            @ApiResponse(responseCode = "404", description = "Parcel not found")
+            @ApiResponse(responseCode = "200", description = "Parcels found and retrieved"),
+            @ApiResponse(responseCode = "412", description = "The recipient provided in not registered in the system"),
+            @ApiResponse(responseCode = "404", description = "Parcels not found")
     })
-    @GetMapping("/parcels/{trackingNumber}")
-    public ResponseEntity<Parcel> getParcelInfo(@PathVariable String trackingNumber) {
-        List<Parcel> parcels = parcelRepository.findAll().stream().filter(parcelFound -> Objects.equals(parcelFound.getTrackingNumber(), trackingNumber)).collect(Collectors.toList());
-        checkParcelValidity(parcels);
-        return new ResponseEntity<>(parcels.get(0), HttpStatus.OK);
+    @GetMapping("/parcels/{recipient}")
+    public ResponseEntity<List<Parcel>> getParcelsForRecipient(@PathVariable String recipient) {
+        ApplicationUser applicationUser = checkForApplicationUserExistenceByName(recipient);
+        List<Parcel> parcels = parcelRepository.findAll().stream()
+                .filter(parcelFound -> Objects.equals(parcelFound.getRecipient(), applicationUser.getName())).collect(toList());
+        checkParcelExistence(parcels);
+        return new ResponseEntity<>(parcels, HttpStatus.OK);
     }
 
-    private void checkParcelValidity(List<Parcel> parcels) {
+    private void checkParcelExistence(List<Parcel> parcels) {
         if (parcels.size() == 0) throw new ParcelNotFoundException();
     }
 
     private void checkCredentialsCorrectness(String user, String password) {
-        boolean correctCredentials = userRepository.findAll().stream().filter(carrier -> carrier.getName().equalsIgnoreCase(user) && Objects.equals(carrier.getPassword(), password)).map(anyApplicationUser -> Boolean.TRUE).findAny().orElse(Boolean.FALSE);
+        boolean correctCredentials = userRepository.findAll().stream()
+                .filter(carrier -> carrier.getName().equalsIgnoreCase(user) && Objects.equals(carrier.getPassword(), password))
+                .map(anyApplicationUser -> Boolean.TRUE).findAny().orElse(Boolean.FALSE);
         if (!correctCredentials) {
             LOGGER.log(WARNING, "Credentials are not correct");
             throw new WrongCredentialsException();
@@ -120,7 +125,7 @@ public class TrackController {
     }
 
     private List<Parcel> parseParcelsCSV(String carrierName, MultipartFile file) throws IOException {
-        ApplicationUser applicationUser = checkForCarrierExistence(carrierName);
+        ApplicationUser applicationUser = checkForApplicationUserExistenceByName(carrierName);
 
         CsvParserSettings setting = new CsvParserSettings();
         setting.setHeaderExtractionEnabled(true);
@@ -131,25 +136,23 @@ public class TrackController {
         List<Record> parseAllRecords = parser.parseAllRecords(file.getInputStream());
 
         List<Parcel> parcels = new ArrayList<>();
-        parseAllRecords.forEach(record -> {
-            parcels.add(new Parcel(
-                    record.getString("tracking_number"),
-                    applicationUser.getId(),
-                    record.getString("status"),
-                    record.getString("recipient")
-            )); //TODO integridad referencial, por ejemplo aqui me deja meterlos sin carrier y no debería poderse. O sin user (que deberia ir por ID)
-        });
+        parseAllRecords.forEach(record -> parcels.add(new Parcel(
+                record.getString("tracking_number"),
+                applicationUser.getId(),
+                record.getString("status"),
+                record.getString("recipient")
+        )));
 
         LOGGER.log(INFO, "The CSV file has been parsed successfully");
 
         return parcels;
     }
 
-    private ApplicationUser checkForCarrierExistence(String carrierName) {
+    private ApplicationUser checkForApplicationUserExistenceByName(String applicationUser) {
         return userRepository.findAll().stream()
-                .filter(aApplicationUser -> Objects.equals(aApplicationUser.getName(), carrierName))
+                .filter(aApplicationUser -> Objects.equals(aApplicationUser.getName(), applicationUser))
                 .findAny()
-                .orElseThrow(CarrierNotFoundException::new);
+                .orElseThrow(ApplicationUserNotFoundException::new);
     }
 
     private void checkForDuplicateParcels(List<Parcel> inputParcels) {
@@ -158,7 +161,7 @@ public class TrackController {
     }
 
     private boolean findDuplicateTrackingNumbersWithCurrents(List<Parcel> inputParcels) {
-        List<String> currentTrackingNumbers = parcelRepository.findAll().stream().map(Parcel::getTrackingNumber).collect(Collectors.toList());
+        List<String> currentTrackingNumbers = parcelRepository.findAll().stream().map(Parcel::getTrackingNumber).collect(toList());
 
         boolean duplicateTrackingNumberWithCurrents = inputParcels.stream().map(Parcel::getTrackingNumber).filter(currentTrackingNumbers::contains).map(trackingNumber -> Boolean.TRUE).findAny().orElse(Boolean.FALSE);
 
@@ -169,9 +172,9 @@ public class TrackController {
     }
 
     private boolean findDuplicateTrackingNumbersAmongInput(List<Parcel> inputParcels) {
-        List<String> currentTrackingNumbersAsList = inputParcels.stream().map(Parcel::getTrackingNumber).collect(Collectors.toList());
+        List<String> currentTrackingNumbersAsList = inputParcels.stream().map(Parcel::getTrackingNumber).collect(toList());
 
-        Set<String> currentTrackingNumbersAsSet = inputParcels.stream().map(Parcel::getTrackingNumber).collect(Collectors.toSet());
+        Set<String> currentTrackingNumbersAsSet = inputParcels.stream().map(Parcel::getTrackingNumber).collect(toSet());
 
         boolean duplicateTrackingNumbersAmongInputs = currentTrackingNumbersAsList.size() != currentTrackingNumbersAsSet.size();
 

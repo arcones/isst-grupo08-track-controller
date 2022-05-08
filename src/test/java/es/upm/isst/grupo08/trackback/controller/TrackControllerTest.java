@@ -138,7 +138,6 @@ class TrackControllerTest {
                 .andExpect(status().isConflict());
     }
 
-
     @Test
     void shouldPreventLoadWithParcelsAlreadyInDatabase() throws Exception {
         Resource parcelsFile = new ClassPathResource("OKLoads/correosLoad.csv");
@@ -185,24 +184,30 @@ class TrackControllerTest {
                 .filter(carrier -> Objects.equals(carrier.getName(), carrierName))
                 .findAny().get().getId();
 
-        mockMvc.perform(multipart("/parcels/"+carrierName)
+        mockMvc.perform(multipart("/parcels/" + carrierName)
                         .file(multipartFile))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/parcels/cc46218817846sm"))
+        String recipient = "pepa";
+
+        mockMvc.perform(get("/parcels/" + recipient))
                 .andExpectAll(
                         status().isOk(),
                         content().contentType(MediaType.APPLICATION_JSON),
-                        jsonPath("$.trackingNumber", is("cc46218817846sm")),
-                        jsonPath("$.carrierId", is(carrierId)),
-                        jsonPath("$.status", is("Entregado")),
-                        jsonPath("$.recipient", is("paca"))
+                        jsonPath("$.[0].trackingNumber", is("cc46kdajndj4689732")),
+                        jsonPath("$.[0].carrierId", is(carrierId)),
+                        jsonPath("$.[0].status", is("En tránsito")),
+                        jsonPath("$.[0].recipient", is(recipient)),
+                        jsonPath("$.[1].trackingNumber", is("cc463294o8u96")),
+                        jsonPath("$.[1].carrierId", is(carrierId)),
+                        jsonPath("$.[1].status", is("Error en la entrega")),
+                        jsonPath("$.[1].recipient", is(recipient))
                 );
     }
 
     @Test
-    void shouldNotProvideInfoAboutNonExistentParcel() throws Exception {
-        mockMvc.perform(get("/parcels/"+ randomAlphanumeric(25)))
-                .andExpect(status().isNotFound());
+    void shouldNotProvideInfoToNonExistentRecipient() throws Exception {
+        mockMvc.perform(get("/parcels/" + randomAlphanumeric(25)))
+                .andExpect(status().isPreconditionFailed());
     }
 }

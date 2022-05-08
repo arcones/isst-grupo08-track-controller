@@ -3,7 +3,6 @@ package es.upm.isst.grupo08.trackback.database;
 import es.upm.isst.grupo08.trackback.controller.TrackController;
 import es.upm.isst.grupo08.trackback.model.ApplicationUser;
 import es.upm.isst.grupo08.trackback.repository.UserRepository;
-import es.upm.isst.grupo08.trackback.repository.ParcelRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 

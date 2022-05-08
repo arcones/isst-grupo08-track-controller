@@ -63,5 +63,5 @@ public class Parcel {
 
     public String getRecipient(){ return recipient; }
 
-    public void setRecipient(){ this.recipient = recipient; }
+    public void setRecipient(String recipient){ this.recipient = recipient; }
 }

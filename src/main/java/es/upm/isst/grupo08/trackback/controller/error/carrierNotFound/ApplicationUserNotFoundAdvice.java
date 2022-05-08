@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
-public class CarrierNotFoundAdvice {
+public class ApplicationUserNotFoundAdvice {
 
     @ResponseBody
-    @ExceptionHandler(CarrierNotFoundException.class)
+    @ExceptionHandler(ApplicationUserNotFoundException.class)
     @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
-    String carrierNotFoundHandler(CarrierNotFoundException ex) {
+    String carrierNotFoundHandler(ApplicationUserNotFoundException ex) {
         return ex.getMessage();
     }
 }

@@ -140,7 +140,7 @@
 			"response": []
 		},
 		{
-			"name": "should provide info of parcel",
+			"name": "should provide info of parcels for a recipient",
 			"event": [
 				{
 					"listen": "test",
@@ -152,10 +152,11 @@
 							"",
 							"pm.test(\"Body matches\", function () {",
 							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.trackingNumber).to.eql(\"SEUR1234XYZ\");",
-							"    pm.expect(jsonData.carrierId).to.eql(1);",
-							"    pm.expect(jsonData.status).to.eql(\"En tránsito\");",
-							"    pm.expect(jsonData.recipient).to.eql(\"santi\");",
+							"    pm.expect(jsonData[0].id).to.eql(5);",
+							"    pm.expect(jsonData[0].trackingNumber).to.eql(\"kjl455rrr55\");",
+							"    pm.expect(jsonData[0].carrierId).to.eql(1);",
+							"    pm.expect(jsonData[0].status).to.eql(\"Error en la entrega\");",
+							"    pm.expect(jsonData[0].recipient).to.eql(\"pepa\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -166,13 +167,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{base_url}}/parcels/SEUR1234XYZ",
+					"raw": "{{base_url}}/parcels/pepa",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
 						"parcels",
-						"SEUR1234XYZ"
+						"pepa"
 					]
 				}
 			},
@@ -343,14 +344,14 @@
 			"response": []
 		},
 		{
-			"name": "should reject to provide info of non existing parcel",
+			"name": "should reject to provide info of non existing recipient",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 404\", function () {",
-							"    pm.response.to.have.status(404);",
+							"pm.test(\"Status code is 412\", function () {",
+							"    pm.response.to.have.status(412);",
 							"});"
 						],
 						"type": "text/javascript"
@@ -361,13 +362,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{base_url}}/parcels/inexistent163834",
+					"raw": "{{base_url}}/parcels/mrNobody",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
 						"parcels",
-						"inexistent163834"
+						"mrNobody"
 					]
 				}
 			},

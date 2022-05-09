@@ -18,9 +18,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.4.2
 
-      - name: show test source
-        run: cat src/test/java/es/upm/isst/grupo08/trackback/controller/TrackControllerTest.java
-
       - name: Run unit tests
         run: ./mvnw test
 

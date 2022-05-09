@@ -64,8 +64,8 @@ class TrackControllerTest {
 
     @Test
     void shouldExistInitialCarriersAndRecipient() {
-        assertEquals(4, userRepository.findAll().size());
-        assertEquals(1, userRepository.findAll().stream().filter(user -> user.getRole() == RECIPIENT).count());
+        assertEquals(7, userRepository.findAll().size());
+        assertEquals(4, userRepository.findAll().stream().filter(user -> user.getRole() == RECIPIENT).count());
         assertEquals(3, userRepository.findAll().stream().filter(user -> user.getRole() == CARRIER).count());
     }
 

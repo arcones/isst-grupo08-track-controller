@@ -36,7 +36,10 @@ class DatabaseInitialLoad implements CommandLineRunner {
                 new ApplicationUser("seur", "test", CARRIER),
                 new ApplicationUser("mrw", "test", CARRIER),
                 new ApplicationUser("correos", "test", CARRIER),
-                new ApplicationUser("pepa", "test", RECIPIENT)
+                new ApplicationUser("pepa", "test", RECIPIENT),
+                new ApplicationUser("dueñas", "test", RECIPIENT),
+                new ApplicationUser("alberto", "test", RECIPIENT),
+                new ApplicationUser("lourdes", "test", RECIPIENT)
         );
 
         if (!userRepository.findAll().containsAll(initialApplicationUsers)) {

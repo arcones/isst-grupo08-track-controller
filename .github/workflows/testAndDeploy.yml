@@ -21,7 +21,6 @@ jobs:
       - name: Run unit tests
         run: ./mvnw test
 
-      - name: Deploy to heroku
       - name: Install Heroku CLI
         run: curl https://cli-assets.heroku.com/install.sh | sh
         
